@@ -118,7 +118,7 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
 #' @examples
 #' \dontrun{
 #' ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
-#' get_sources_format_selected_packages(ctv_econ)
+#' get_sources_for_selected_packages(ctv_econ)
 #' }
 get_sources_for_selected_packages <- function(view_df){
 
@@ -131,6 +131,30 @@ get_sources_for_selected_packages <- function(view_df){
 
 # https://cran.r-project.org/src/contrib/Archive/car/car_0.8-1.tar.gz
 # function to download source package, and extract man/
+
+#' Downloads Rd from an archived source package
+#' @param name String. Name of the packages.
+#' @param version String. Version of the package to download.
+#' @param url String. Link to archived package tar file.
+#' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
+#' @return Side-effect. No returned object, writes a Rd files to disk.
+#' @details
+#' This function returns a data frame with a column `name` giving the name
+#' of a package, `version` giving its version, `url` the download url
+#' `last_modified` the date on which the package was last modified on CRAN
+#' and `size`, the size of the package
+#' @examples
+#' \dontrun{
+#' # First, get list of packages. In this case, the ones in the "Econometrics" view as of "2015-01-01"
+#' ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
+#'
+#' # Now, get the names, versions, and urls for these packages
+#' ctv_econ_sources <- get_sources_for_selected_packages(ctv_econ)
+#'
+#' # It is now possible to download the man/ folders of these packages with the following lines
+#' ctv_econ_sources %>%
+#'   mutate(get_sources = pmap(list(name, version, url), get_man_package))
+#' }
 get_man_package <- function(name, version, url, clean = TRUE){
 
   path_tempfile <- tempfile(fileext = ".tar.gz")

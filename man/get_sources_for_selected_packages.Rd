@@ -24,6 +24,6 @@ and `size`, the size of the package
 \examples{
 \dontrun{
 ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
-get_sources_format_selected_packages(ctv_econ)
+get_sources_for_selected_packages(ctv_econ)
 }
 }
