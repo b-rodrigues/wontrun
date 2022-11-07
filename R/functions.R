@@ -1,10 +1,10 @@
-#' Generates an R script with the examples from an Rd file. Wraps `tools::Rd2ex()`
+#' Generates an R script with the examples from an Rd file.
 #' @param path_to_rd String. Path to Rd file you wish to convert to a script
 #' @importFrom stringr str_extract str_replace
 #' @importFrom tools Rd2ex
 #' @return Side-effect. No returned object, writes a script on disk.
 #' @details
-#' This wrapper around `tools::Rd2ex()` extracts the examples from Rd files included in
+#' This function is a wrapper around `tools::Rd2ex()` tht extracts the examples from Rd files included in
 #' the man/ folder of source packages and writes them to disk, next to the Rd files.
 #' @examples
 #' get_archived_sources("AER")
@@ -38,13 +38,17 @@ generate_script_from_help <- function(path_to_rd){
 #' @importFrom janitor clean_names
 #' @importFrom dplyr filter mutate select
 #' @importFrom lubridate ymd_hm
+#' @importFrom stringr str_remove_all
 #' @return A tibble of 4 columns, `name`, `url`, `last_modified`, `size`
 #' @details
 #' The returned table is the same as the html table that can be found in the CRAN
 #' archive url of a package, for instance \url{https://cran.r-project.org/src/contrib/Archive/AER/}.
 #' The `url` column is added to make it easier to download a source package.
+#' This function is used by `get_sources_for_selected_packages()`.
 #' @examples
+#' dontrun{
 #' get_archived_sources("AER")
+#' }
 get_archived_sources <- function(package){
 
   root_url <- "https://cran.r-project.org/src/contrib/Archive/"
@@ -56,11 +60,11 @@ get_archived_sources <- function(package){
     html_nodes("table") %>%
     html_table() %>%
     pluck(1) %>%
-    janitor::clean_names() %>%
+    clean_names() %>%
     filter(name != "Parent Directory",
            last_modified != "",
            size != "-") %>%
-    mutate(last_modified = lubridate::ymd_hm(last_modified),
+    mutate(last_modified = ymd_hm(last_modified),
            url = paste0(root_url, package, "/", name)) %>%
     select(version = name, url, last_modified, size) %>%
     mutate(version = str_remove_all(version, "\\.tar\\.gz"))
@@ -109,6 +113,7 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
 #' @param view_df A data frame as returned by `get_packages_from_view()`
 #' @importFrom dplyr mutate select rename
 #' @importFrom tidyr unnest
+#' @importFrom purrr map
 #' @return A tibble of 5 columns.
 #' @details
 #' This function returns a data frame with a column `name` giving the name

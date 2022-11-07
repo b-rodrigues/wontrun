@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{generate_script_from_help}
 \alias{generate_script_from_help}
-\title{Generates an R script with the examples from an Rd file. Wraps `tools::Rd2ex()`}
+\title{Generates an R script with the examples from an Rd file.}
 \usage{
 generate_script_from_help(path_to_rd)
 }
@@ -13,10 +13,10 @@ generate_script_from_help(path_to_rd)
 Side-effect. No returned object, writes a script on disk.
 }
 \description{
-Generates an R script with the examples from an Rd file. Wraps `tools::Rd2ex()`
+Generates an R script with the examples from an Rd file.
 }
 \details{
-This wrapper around `tools::Rd2ex()` extracts the examples from Rd files included in
+This function is a wrapper around `tools::Rd2ex()` tht extracts the examples from Rd files included in
 the man/ folder of source packages and writes them to disk, next to the Rd files.
 }
 \examples{
