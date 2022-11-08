@@ -27,7 +27,7 @@ to test RETRocompatibility of EXamples and ultimately evaluate reproducibility o
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("b-rodrigues/retrex", ref = "main")
+devtools::install_github("b-rodrigues/retrex", ref = "master")
 ```
 
 ## Example
