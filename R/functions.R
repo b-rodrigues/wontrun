@@ -3,6 +3,7 @@
 #' @importFrom stringr str_extract str_replace
 #' @importFrom tools Rd2ex
 #' @return Side-effect. No returned object, writes a script on disk.
+#' @export
 #' @details
 #' This function is a wrapper around `tools::Rd2ex()` tht extracts the examples from Rd files included in
 #' the man/ folder of source packages and writes them to disk, next to the Rd files.
@@ -40,6 +41,7 @@ generate_script_from_help <- function(path_to_rd){
 #' @importFrom lubridate ymd_hm
 #' @importFrom stringr str_remove_all
 #' @return A tibble of 4 columns, `name`, `url`, `last_modified`, `size`
+#' @export
 #' @details
 #' The returned table is the same as the html table that can be found in the CRAN
 #' archive url of a package, for instance \url{https://cran.r-project.org/src/contrib/Archive/AER/}.
@@ -70,11 +72,36 @@ get_archived_sources <- function(package){
     mutate(version = str_remove_all(version, "\\.tar\\.gz"))
 }
 
+
+#' Check if installed version of package is latest
+#' @param package String. Package name.
+#' @importFrom pkgsearch cran_package
+#' @return Side-effect. Raises a warning if package is outdated.
+#' @details
+#' This function uses `pkgsearch::cran_package()` to check whether the installed version of a package is the latest available on CRAN. Useful to alert the user.
+#' @examples
+#' \dontrun{
+#' check_package_version("AER")
+#' }
+check_package_version <- function(package){
+
+  current_version <- pkgsearch::cran_package(package)$Version
+
+  installed_version <- packageVersion(package)
+
+  if(current_version != installed_version){
+    warning(paste0("Installed version of ", package, " is not the latest available version on CRAN. You might want to update ", package, "."))
+
+  }
+
+}
+
 #' Get a tibble with current available packages on CRAN
 #' @param ... Arguments passed down to `available.packages()`
 #' @importFrom janitor clean_names
 #' @importFrom tibble as_tibble
 #' @return A tibble of 17 columns
+#' @export
 #' @details
 #' This function is a simple wrapper around `available.packages()`
 #' @examples
@@ -94,8 +121,9 @@ get_available_packages <- function(...){
 #' @importFrom ctv ctv
 #' @importFrom tibble as_tibble
 #' @return A tibble of 2 columns
+#' @export
 #' @details
-#' This function is a simple wrapper around `ctv::ctv()`
+#' This function is a simple wrapper around `ctv::ctv()`.
 #' @examples
 #' \dontrun{
 #' get_packages_from_view("Econometrics")
@@ -106,7 +134,10 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
            repos = paste0("https://cran.microsoft.com/snapshot/",
                           date)) %>%
     pluck("packagelist") %>%
-    as_tibble()
+    as_tibble() %>%
+    mutate(as_of = date,
+           view = view) %>%
+    select(view, as_of, everything())
 }
 
 #' Get a tibble of source urls for a selection of packages
@@ -115,6 +146,7 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
 #' @importFrom tidyr unnest
 #' @importFrom purrr map
 #' @return A tibble of 5 columns.
+#' @export
 #' @details
 #' This function returns a data frame with a column `name` giving the name
 #' of a package, `version` giving its version, `url` the download url
@@ -143,6 +175,7 @@ get_sources_for_selected_packages <- function(view_df){
 #' @param url String. Link to archived package tar file.
 #' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
 #' @return Side-effect. No returned object, writes a Rd files to disk.
+#' @export
 #' @details
 #' This function returns a data frame with a column `name` giving the name
 #' of a package, `version` giving its version, `url` the download url

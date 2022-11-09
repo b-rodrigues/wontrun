@@ -1,0 +1,46 @@
+---
+title: "Number of packages in CRAN Task Views through the years"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{packages_in_ctv}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(wontrun)
+suppressPackageStartupMessages(library(dplyr))
+library(g2r)
+```
+
+
+```{r, echo = F}
+data("n_packages_time")
+
+input_select(
+  id = "select_view",
+  label = "Select view",
+  choices = c("Econometrics", "Bayesian")
+)
+
+g2(n_packages_time,
+   asp(y = total_packages,
+       x = as_of,
+       color = view)
+   ) %>%
+  fig_line() %>% 
+action_filter_data(
+  "select_view",
+  view,
+  operator = "=="
+)
+
+```
+

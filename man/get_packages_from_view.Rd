@@ -18,7 +18,7 @@ A tibble of 2 columns
 Get a tibble of packages from a CRAN Task View
 }
 \details{
-This function is a simple wrapper around `ctv::ctv()`
+This function is a simple wrapper around `ctv::ctv()`.
 }
 \examples{
 \dontrun{

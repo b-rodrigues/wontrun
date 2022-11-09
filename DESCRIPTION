@@ -4,11 +4,11 @@ Title: Execute Function Examples From Archived Package Sources
 Version: 0.0.1
 Authors@R:
     person("Bruno", "Rodrigues", , "bruno@brodrigues.co", role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-3211-3689"))
-Description: Downloads and executes examples from archived package sources to test RETRocompatibility of EXamples with current
-    versions of packages.
+Description: Downloads and executes examples from archived package sources for assessing reproducibility of older code.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr
 BugReports: https://github.com/b-rodrigues/wontrun/issues
 Imports:
     ctv,
@@ -16,6 +16,7 @@ Imports:
     janitor,
     lubridate,
     magrittr,
+    pkgsearch,
     purrr,
     rvest,
     stringr,
@@ -27,3 +28,5 @@ Suggests:
     rmarkdown,
     testthat
 RoxygenNote: 7.2.1
+Depends: 
+    R (>= 2.10)
