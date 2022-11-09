@@ -1,4 +1,4 @@
-Package: retrex
+Package: wontrun
 Type: Package
 Title: Execute Function Examples From Archived Package Sources
 Version: 0.0.1
@@ -9,7 +9,7 @@ Description: Downloads and executes examples from archived package sources to te
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-BugReports: https://github.com/b-rodrigues/retrex/issues
+BugReports: https://github.com/b-rodrigues/wontrun/issues
 Imports:
     ctv,
     dplyr,
