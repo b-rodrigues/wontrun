@@ -1,0 +1,54 @@
+---
+title: "Running old examples"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{running_old_examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(wontrun)
+library(dplyr)
+library(purrr)
+```
+
+We need to start with a list of packages. Using `get_packages_from_view()`, we get a 
+data frame with packages from a CRAN Task View. But you can provide any data frame
+with a column called `name` where each element is a package name. The lines below 
+show you how to get a data frame, called `econ_source` that contains the packages
+from the `Econometrics` view as of "2015-01-01". 
+
+```{r, eval = F}
+ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
+econ_source <- get_sources_for_selected_packages(ctv_econ)
+```
+
+To make things easier, you can load a sample of packages with the following
+line:
+
+```{r}
+data("sources_ctv_econ")
+
+sources_ctv_econ
+```
+
+It is now possible to download the documentation from the packages to a temporary directory
+with:
+
+```{r, eval = F}
+sources_ctv_econ %>%
+  mutate(get_sources = pmap(list(name, version, url),
+                            get_examples))
+```
+
+```{r}
+
+```

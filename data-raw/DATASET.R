@@ -37,3 +37,17 @@ n_packages_time <- ctvs_through_time %>%
   mutate(as_of = lubridate::ymd(as_of))
 
 usethis::use_data(n_packages_time, overwrite = TRUE)
+
+ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
+econ_source <- get_sources_for_selected_packages(ctv_econ)
+
+set.seed(1234)
+sources_ctv_econ <- econ_source %>%
+  filter(year(last_modified) == 2010) %>%
+  group_by(name) %>%
+  filter(last_modified == max(last_modified)) %>%
+  ungroup() %>%
+  select(-as_of) %>%
+  sample_n(10)
+
+usethis::use_data(sources_ctv_econ, overwrite = TRUE)

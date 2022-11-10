@@ -161,7 +161,7 @@ get_sources_for_selected_packages <- function(view_df){
 
   view_df %>%
     mutate(sources = map(name, get_archived_sources)) %>%
-    select(-core) %>%
+    select(-any_of("core")) %>%
     unnest(cols = c(sources))
 
 }
@@ -191,16 +191,18 @@ get_sources_for_selected_packages <- function(view_df){
 #'
 #' # It is now possible to download the man/ folders of these packages with the following lines
 #' ctv_econ_sources %>%
-#'   mutate(get_sources = pmap(list(name, version, url), get_man_package))
+#'   mutate(get_sources = pmap(list(name, version, url), get_examples))
 #' }
-get_man_package <- function(name, version, url, clean = TRUE){
+get_examples <- function(name, version, url, clean = TRUE){
 
   path_tempfile <- tempfile(fileext = ".tar.gz")
+
+  path_tempdir <- tempdir()
 
   download.file(url,
                 destfile = path_tempfile)
 
-  exdir_path <- paste0("archives/", name, "/", version )
+  exdir_path <- paste0(path_tempdir, "wontrun_download/", name, "/", version)
 
   untar(path_tempfile, exdir = exdir_path, extras = "--strip-components=1")
 
@@ -208,10 +210,15 @@ get_man_package <- function(name, version, url, clean = TRUE){
 
     files_to_delete <- list.files(exdir_path,
                                   full.names = TRUE) %>%
-      setdiff(paste0("archives/", name, "/", version, "/man"))
+      setdiff(paste0(path_tempdir, "wontrun_download/", name, "/", version, "/man"))
 
     unlink(files_to_delete,
            recursive = TRUE)
   }
+
+  rds_paths <- list.files(paste0(exdir_path, "/man"), full.names = TRUE)
+
+  purrr::map(rds_paths,
+             generate_script_from_help)
 
 }
