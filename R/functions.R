@@ -222,3 +222,24 @@ get_examples <- function(name, version, url, clean = TRUE){
              generate_script_from_help)
 
 }
+
+
+run_example <- function(name, version, exdir_path){
+
+  scripts_path <- list.files(paste0(exdir_path, "/scripts"), full.names = TRUE)
+  purrr::map(scripts_path, replace_with_pload)
+
+  chatty_source <- function(...){
+    print(paste0("Running", ...))
+    source(...)
+  }
+
+  run_script <- function(name){
+    pacman::p_load(name)
+    purrr::map(scripts_path, chatty_source)
+  }
+
+  callr::r(run_script())
+
+}
+
