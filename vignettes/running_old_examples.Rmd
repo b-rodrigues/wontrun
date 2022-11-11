@@ -43,12 +43,10 @@ sources_ctv_econ
 It is now possible to download the documentation from the packages to a temporary directory
 with:
 
-```{r, eval = F}
-sources_ctv_econ %>%
-  mutate(get_sources = pmap(list(name, version, url),
-                            get_examples))
+```{r}
+sources_ctv_econ_with_path <- get_examples(sources_ctv_econ)
 ```
 
 ```{r}
-
+hu <- run_examples(filter(sources_ctv_econ_with_path, name == "gmm"))
 ```

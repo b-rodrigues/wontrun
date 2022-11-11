@@ -166,41 +166,27 @@ get_sources_for_selected_packages <- function(view_df){
 
 }
 
-# https://cran.r-project.org/src/contrib/Archive/car/car_0.8-1.tar.gz
-# function to download source package, and extract man/
-
-#' Downloads Rd from an archived source package
+#' Downloads doc files from an archived source package, and generates an R script from it.
 #' @param name String. Name of the packages.
 #' @param version String. Version of the package to download.
 #' @param url String. Link to archived package tar file.
 #' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
 #' @return Side-effect. No returned object, writes a Rd files to disk.
-#' @export
 #' @details
 #' This function returns a data frame with a column `name` giving the name
 #' of a package, `version` giving its version, `url` the download url
 #' `last_modified` the date on which the package was last modified on CRAN
 #' and `size`, the size of the package
-#' @examples
-#' \dontrun{
-#' # First, get list of packages. In this case, the ones in the "Econometrics" view as of "2015-01-01"
-#' ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
-#'
-#' # Now, get the names, versions, and urls for these packages
-#' ctv_econ_sources <- get_sources_for_selected_packages(ctv_econ)
-#'
-#' # It is now possible to download the man/ folders of these packages with the following lines
-#' ctv_econ_sources %>%
-#'   mutate(get_sources = pmap(list(name, version, url), get_examples))
-#' }
-get_examples <- function(name, version, url, clean = TRUE){
+get_example <- function(name, version, url, clean = TRUE){
 
   path_tempfile <- tempfile(fileext = ".tar.gz")
 
   path_tempdir <- tempdir()
 
-  download.file(url,
-                destfile = path_tempfile)
+  message("Downloading package ", version)
+    download.file(url,
+                  destfile = path_tempfile,
+                  quiet = TRUE)
 
   exdir_path <- paste0(path_tempdir, "wontrun_download/", name, "/", version)
 
@@ -221,25 +207,70 @@ get_examples <- function(name, version, url, clean = TRUE){
   purrr::map(rds_paths,
              generate_script_from_help)
 
+  exdir_path
+
 }
 
 
-run_example <- function(name, version, exdir_path){
+#' Downloads Rd from an archived source package
+#' @param sources_df Data frame. A data frame as returned by `get_sources_for_selected_packages()`
+#' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
+#' @return Side-effect. No returned object, writes a Rd files to disk.
+#' @importFrom dplyr mutate 
+#' @importFrom purrr pmap_chr
+#' @export
+#' @examples
+#' \dontrun{
+#' # First, get list of packages. In this case, the ones in the "Econometrics" view as of "2015-01-01"
+#' ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
+#'
+#' # Now, get the names, versions, and urls for these packages
+#' ctv_econ_sources <- get_sources_for_selected_packages(ctv_econ)
+#'
+#' # It is now possible to download the man/ folders of these packages with the following lines
+#' get_examples(ctv_econ_sources)
+#' }
+get_examples <- function(sources_df, clean = TRUE){
+  sources_df |>
+    mutate(exdir_path = pmap_chr(list(name, version, url), get_example, clean))
 
-  scripts_path <- list.files(paste0(exdir_path, "/scripts"), full.names = TRUE)
-  purrr::map(scripts_path, replace_with_pload)
+}
 
-  chatty_source <- function(...){
-    print(paste0("Running", ...))
-    source(...)
+#' @export
+run_examples <- function(sources_df_with_path){
+
+  chatty_source <- function(name, script){
+    print(paste0("Running", script))
+    withr::with_package(name, source(script))
   }
 
-  run_script <- function(name){
-    pacman::p_load(name)
-    purrr::map(scripts_path, chatty_source)
+  run_script <- function(name, script){
+    print(cat("Loading ", name, "\n", "and running ", script))
+    callr::r(function(x, y){
+      withr::with_package(x, source(y))},
+      args = list(x = name, y = script)
+    )
   }
 
-  callr::r(run_script())
+  p_run_script <- purrr::possibly(run_script, otherwise = NULL)
+
+ # sources_df_with_path <- sources_df_with_path %>%
+  sources_df_with_path %>%
+    mutate(exdir_script_path = paste0(exdir_path, "/scripts")) %>%
+    dplyr::group_by(name) %>%
+    mutate(scripts_paths = list(
+             list.files(exdir_script_path, full.names = TRUE))
+           ) %>%
+    dplyr::ungroup() %>%
+    unnest(cols = c(scripts_paths)) %>%
+    mutate(runs = purrr::map2(
+                           name,
+                           scripts_paths,
+                           p_run_script))
+
+ # scripts_path <- list.files(paste0(exdir_path, "/scripts"), full.names = TRUE)
+ # purrr::map(scripts_path, replace_with_pload)
+
 
 }
 

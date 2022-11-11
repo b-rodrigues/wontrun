@@ -4,14 +4,10 @@
 \alias{get_examples}
 \title{Downloads Rd from an archived source package}
 \usage{
-get_examples(name, version, url, clean = TRUE)
+get_examples(sources_df, clean = TRUE)
 }
 \arguments{
-\item{name}{String. Name of the packages.}
-
-\item{version}{String. Version of the package to download.}
-
-\item{url}{String. Link to archived package tar file.}
+\item{sources_df}{Data frame. A data frame as returned by `get_sources_for_selected_packages()`}
 
 \item{clean}{Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.}
 }
@@ -20,12 +16,6 @@ Side-effect. No returned object, writes a Rd files to disk.
 }
 \description{
 Downloads Rd from an archived source package
-}
-\details{
-This function returns a data frame with a column `name` giving the name
-of a package, `version` giving its version, `url` the download url
-`last_modified` the date on which the package was last modified on CRAN
-and `size`, the size of the package
 }
 \examples{
 \dontrun{
@@ -36,7 +26,6 @@ ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
 ctv_econ_sources <- get_sources_for_selected_packages(ctv_econ)
 
 # It is now possible to download the man/ folders of these packages with the following lines
-ctv_econ_sources \%>\%
-  mutate(get_sources = pmap(list(name, version, url), get_examples))
+get_examples(ctv_econ_sources)
 }
 }
