@@ -120,6 +120,7 @@ get_available_packages <- function(...){
 #' @param date String, format: '2015-01-01'. Queries MRAN to download state of the view at given date
 #' @importFrom ctv ctv
 #' @importFrom tibble as_tibble
+#' @importFrom lubridate ymd
 #' @return A tibble of 2 columns
 #' @export
 #' @details
@@ -135,9 +136,10 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
                           date)) %>%
     pluck("packagelist") %>%
     as_tibble() %>%
-    mutate(as_of = date,
-           view = view) %>%
-    select(view, as_of, everything())
+    mutate(as_of = ymd(date),
+           view = view,
+           name = as.character(name)) %>%
+    select(view, as_of, everything()) 
 }
 
 #' Get a tibble of source urls for a selection of packages
@@ -159,8 +161,9 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
 #' }
 get_sources_for_selected_packages <- function(view_df){
 
+  p_gas <- purrr::possibly(get_archived_sources, otherwise = NULL)
   view_df %>%
-    mutate(sources = map(name, get_archived_sources)) %>%
+    mutate(sources = map(name, p_gas)) %>%
     select(-any_of("core")) %>%
     unnest(cols = c(sources))
 
