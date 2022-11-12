@@ -146,7 +146,7 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
 #' @param view_df A data frame as returned by `get_packages_from_view()`
 #' @importFrom dplyr mutate select rename
 #' @importFrom tidyr unnest
-#' @importFrom purrr map
+#' @importFrom purrr map possibly
 #' @return A tibble of 5 columns.
 #' @export
 #' @details
@@ -161,7 +161,8 @@ get_packages_from_view <- function(view, date = "2015-01-01"){
 #' }
 get_sources_for_selected_packages <- function(view_df){
 
-  p_gas <- purrr::possibly(get_archived_sources, otherwise = NULL)
+  p_gas <- possibly(get_archived_sources, otherwise = NULL)
+
   view_df %>%
     mutate(sources = map(name, p_gas)) %>%
     select(-any_of("core")) %>%
@@ -218,8 +219,9 @@ get_example <- function(name, version, url, clean = TRUE){
 #' Downloads Rd from an archived source package
 #' @param sources_df Data frame. A data frame as returned by `get_sources_for_selected_packages()`
 #' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
+#' @param test Boolean, defaults to FALSE. TRUE is only useful for running unit tests.
 #' @return Side-effect. No returned object, writes a Rd files to disk.
-#' @importFrom dplyr mutate 
+#' @importFrom dplyr mutate
 #' @importFrom purrr pmap_chr
 #' @export
 #' @examples
@@ -233,14 +235,24 @@ get_example <- function(name, version, url, clean = TRUE){
 #' # It is now possible to download the man/ folders of these packages with the following lines
 #' get_examples(ctv_econ_sources)
 #' }
-get_examples <- function(sources_df, clean = TRUE){
-  sources_df |>
+get_examples <- function(sources_df, clean = TRUE, test = FALSE){
+  sources_df <- sources_df |>
     mutate(exdir_path = pmap_chr(list(name, version, url), get_example, clean))
 
+  if(test){
+    exdir_path <- sources_df |>
+      pull(exdir_path)
+
+    list.files(exdir_path, all.files = TRUE, recursive = TRUE)
+  } else {
+    return(sources_df)
+  }
 }
 
 #' @export
-run_examples <- function(sources_df_with_path){
+run_examples <- function(sources_df_with_path, ncpus = 1){
+
+  future::plan(future::multisession, workers = ncpus)
 
   chatty_source <- function(name, script){
     print(paste0("Running", script))
@@ -250,12 +262,15 @@ run_examples <- function(sources_df_with_path){
   run_script <- function(name, script){
     print(cat("Loading ", name, "\n", "and running ", script))
     callr::r(function(x, y){
-      withr::with_package(x, source(y))},
+      withr::with_package(x,
+                          rlang::try_fetch(
+                                   source(y),
+                                   condition = function(cnd) cnd))},
       args = list(x = name, y = script)
     )
   }
 
-  p_run_script <- purrr::possibly(run_script, otherwise = NULL)
+  #p_run_script <- purrr::possibly(run_script, otherwise = NULL)
 
  # sources_df_with_path <- sources_df_with_path %>%
   sources_df_with_path %>%
@@ -266,14 +281,29 @@ run_examples <- function(sources_df_with_path){
            ) %>%
     dplyr::ungroup() %>%
     unnest(cols = c(scripts_paths)) %>%
-    mutate(runs = purrr::map2(
+    mutate(runs = furrr::future_map2(
                            name,
                            scripts_paths,
-                           p_run_script))
-
- # scripts_path <- list.files(paste0(exdir_path, "/scripts"), full.names = TRUE)
- # purrr::map(scripts_path, replace_with_pload)
+                           run_script))
 
 
 }
 
+# ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
+#' @export
+wontrun <- function(packages_df, ncpus, years, earliest = TRUE){
+
+  packages_df_sources <- get_sources_for_selected_packages(packages_df) %>%
+    filter(lubridate::year(last_modified) %in% years)
+
+  if(earliest){
+    packages_df_sources <- packages_df_sources %>%
+      group_by(name) %>%
+      filter(last_modified == min(last_modified)) %>%
+      ungroup()
+  }
+
+  message("Running examples...")
+  run_examples(get_examples(packages_df_sources), ncpus)
+
+}

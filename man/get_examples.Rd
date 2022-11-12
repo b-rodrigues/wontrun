@@ -4,12 +4,14 @@
 \alias{get_examples}
 \title{Downloads Rd from an archived source package}
 \usage{
-get_examples(sources_df, clean = TRUE)
+get_examples(sources_df, clean = TRUE, test = FALSE)
 }
 \arguments{
 \item{sources_df}{Data frame. A data frame as returned by `get_sources_for_selected_packages()`}
 
 \item{clean}{Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.}
+
+\item{test}{Boolean, defaults to FALSE. TRUE is only useful for running unit tests.}
 }
 \value{
 Side-effect. No returned object, writes a Rd files to disk.
