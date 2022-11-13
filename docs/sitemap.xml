@@ -34,6 +34,9 @@
     <loc>https://b-rodrigues.github.io/wontrun/reference/get_available_packages.html</loc>
   </url>
   <url>
+    <loc>https://b-rodrigues.github.io/wontrun/reference/get_example.html</loc>
+  </url>
+  <url>
     <loc>https://b-rodrigues.github.io/wontrun/reference/get_examples.html</loc>
   </url>
   <url>
@@ -56,5 +59,11 @@
   </url>
   <url>
     <loc>https://b-rodrigues.github.io/wontrun/reference/sources_ctv_econ.html</loc>
+  </url>
+  <url>
+    <loc>https://b-rodrigues.github.io/wontrun/reference/summary_wontrun.html</loc>
+  </url>
+  <url>
+    <loc>https://b-rodrigues.github.io/wontrun/reference/wontrun.html</loc>
   </url>
 </urlset>

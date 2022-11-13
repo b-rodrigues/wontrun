@@ -69,7 +69,9 @@ get_archived_sources <- function(package){
     mutate(last_modified = ymd_hm(last_modified),
            url = paste0(root_url, package, "/", name)) %>%
     select(version = name, url, last_modified, size) %>%
-    mutate(version = str_remove_all(version, "\\.tar\\.gz"))
+    mutate(version = str_remove_all(version, "\\.tar\\.gz"),
+           name = package) %>%
+    select(name, everything())
 }
 
 
@@ -289,21 +291,58 @@ run_examples <- function(sources_df_with_path, ncpus = 1){
 
 }
 
-# ctv_econ <- get_packages_from_view("Econometrics", date = "2015-01-01")
+#' wontrun
+#' @param packages_df Data frame. A data frame as returned by `get_archived_sources()`
+#' @param ncpus Integer. Number of cpus to run examples in parallel.
+#' @param years Integer. Year or atomic vector of years to select packages to run examples.
+#' @param earliest Boolean. Select oldest package from year.
+#' @return Side-effect. No returned object, writes a Rd files to disk.
+#' @importFrom dplyr filter group_by ungroup mutate
+#' @importFrom lubridate year
 #' @export
+#' @examples
+#' \dontrun{
+#' aer_sources <- get_archived_sources("AER")
+#' aer_runs <- aer_sources %>%
+#'   wontrun(ncpus = 6, years = 2008)
+#' }
 wontrun <- function(packages_df, ncpus, years, earliest = TRUE){
 
-  packages_df_sources <- get_sources_for_selected_packages(packages_df) %>%
+  packages_df_sources <- packages_df %>%
+    #get_sources_for_selected_packages(packages_df) %>%
     filter(lubridate::year(last_modified) %in% years)
 
   if(earliest){
     packages_df_sources <- packages_df_sources %>%
-      group_by(name) %>%
+      group_by(name, lubridate::year(last_modified)) %>%
       filter(last_modified == min(last_modified)) %>%
       ungroup()
   }
 
   message("Running examples...")
   run_examples(get_examples(packages_df_sources), ncpus)
+}
+
+
+#' Summarise results from wontrun
+#' @param wontrun_df Data frame. A data frame as returned by `get_archived_sources()`
+#' @return Side-effect. No returned object, writes a Rd files to disk.
+#' @importFrom dplyr mutate count arrange
+#' @importFrom purrr map map_chr
+#' @export
+#' @examples
+#' \dontrun{
+#' aer_sources <- get_archived_sources("AER")
+#' aer_runs <- aer_sources %>%
+#'   wontrun(ncpus = 6, years = 2008)
+#' summary_wontrun(aer_runs)
+#' }
+summary_wontrun <- function(wontrun_df){
+  wontrun_df %>%
+    mutate(classes = map(runs, class),
+           classes = map_chr(classes,
+                             ~paste0(., collapse = "-"))) %>%
+    count(classes, name = "total") %>%
+    arrange(total)
 
 }

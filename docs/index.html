@@ -64,8 +64,314 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-Downloads and executes examples from archived package sources for assessing reproducibility of older code.
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="wontrun">{wontrun}<a class="anchor" aria-label="anchor" href="#wontrun"></a>
+</h1></div>
+<!-- badges: start -->
+<!-- badges: end -->
+<p>The goal of retrex is to make it easy to run examples from archived package source on current versions of packages in order to test RETRocompatibility of EXamples and ultimately evaluate reproducibility of code.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p><code>{retrex}</code> is not available on CRAN, but you can install the development version of retrex like so:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"b-rodrigues/wontrun"</span>, ref <span class="op">=</span> <span class="st">"master"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<p>This is a basic example which shows you how to solve a common problem:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">wontrun</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aer_sources</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_archived_sources.html">get_archived_sources</a></span><span class="op">(</span><span class="st">"AER"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aer_sources</span></span>
+<span><span class="co">#&gt; # A tibble: 25 × 5</span></span>
+<span><span class="co">#&gt;    name  version   url                                 last_modified       size </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;                               &lt;dttm&gt;              &lt;chr&gt;</span></span>
+<span><span class="co">#&gt;  1 AER   AER_0.2-1 https://cran.r-project.org/src/con… 2008-05-05 00:22:00 2.4M </span></span>
+<span><span class="co">#&gt;  2 AER   AER_0.2-2 https://cran.r-project.org/src/con… 2008-05-05 11:43:00 2.4M </span></span>
+<span><span class="co">#&gt;  3 AER   AER_0.9-0 https://cran.r-project.org/src/con… 2008-05-28 23:21:00 2.4M </span></span>
+<span><span class="co">#&gt;  4 AER   AER_1.0-0 https://cran.r-project.org/src/con… 2008-08-26 12:53:00 2.6M </span></span>
+<span><span class="co">#&gt;  5 AER   AER_1.0-1 https://cran.r-project.org/src/con… 2008-10-22 13:15:00 2.6M </span></span>
+<span><span class="co">#&gt;  6 AER   AER_1.1-0 https://cran.r-project.org/src/con… 2009-02-05 19:44:00 2.6M </span></span>
+<span><span class="co">#&gt;  7 AER   AER_1.1-1 https://cran.r-project.org/src/con… 2009-03-08 15:32:00 2.6M </span></span>
+<span><span class="co">#&gt;  8 AER   AER_1.1-2 https://cran.r-project.org/src/con… 2009-03-19 15:59:00 2.6M </span></span>
+<span><span class="co">#&gt;  9 AER   AER_1.1-3 https://cran.r-project.org/src/con… 2009-05-22 00:31:00 2.6M </span></span>
+<span><span class="co">#&gt; 10 AER   AER_1.1-4 https://cran.r-project.org/src/con… 2009-09-23 22:49:00 2.7M </span></span>
+<span><span class="co">#&gt; # … with 15 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aer_runs</span> <span class="op">&lt;-</span> <span class="va">aer_sources</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/wontrun.html">wontrun</a></span><span class="op">(</span>ncpus <span class="op">=</span> <span class="fl">6</span>, years <span class="op">=</span> <span class="fl">2008</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Running examples...</span></span>
+<span><span class="co">#&gt; Downloading package AER_0.2-1</span></span>
+<span><span class="co">#&gt; Warning in parse_Rd("/tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/man/</span></span>
+<span><span class="co">#&gt; ResumeNames.Rd", : /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/man/</span></span>
+<span><span class="co">#&gt; ResumeNames.Rd:70: unknown macro '\bf'</span></span>
+<span><span class="co">#&gt; Warning in parse_Rd("/tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/man/TeachingRatings.Rd", : /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/man/TeachingRatings.Rd:49: unexpected TEXT '(24), 369--376.</span></span>
+<span><span class="co">#&gt; ', expecting '{'</span></span>
+<span><span class="co">#&gt; Warning in parse_Rd("/tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/man/</span></span>
+<span><span class="co">#&gt; USSeatBelts.Rd", : /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/man/</span></span>
+<span><span class="co">#&gt; USSeatBelts.Rd:46: unexpected TEXT '(The Review of Economics and Statistics), ',</span></span>
+<span><span class="co">#&gt; expecting '{'</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Affairs.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ArgentinaCPI.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Baltagi2002.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/BankWages.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/BenderlyZwick.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/BondYield.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CameronTrivedi1998.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CartelStability.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CASchools.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ChinaIncome.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CigarettesB.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CigarettesSW.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CollegeDistance.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ConsumerGood.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CPS1985.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CPS1988.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CPSSW.RNULL</span></span>
+<span><span class="co">#&gt; Warning: UNRELIABLE VALUE: Future ('&lt;none&gt;') unexpectedly generated random</span></span>
+<span><span class="co">#&gt; numbers without specifying argument 'seed'. There is a risk that those random</span></span>
+<span><span class="co">#&gt; numbers are not statistically sound and the overall results might be invalid.</span></span>
+<span><span class="co">#&gt; To fix this, specify 'seed=TRUE'. This ensures that proper, parallel-safe random</span></span>
+<span><span class="co">#&gt; numbers are produced via the L'Ecuyer-CMRG method. To disable this check, use</span></span>
+<span><span class="co">#&gt; 'seed=NULL', or set option 'future.rng.onMisuse' to "ignore".</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/CreditCard.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/dispersiontest.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/DJFranses.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/DoctorVisits.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/DutchAdvert.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/DutchSales.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Electricity1955.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Electricity1970.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Equipment.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/EuroEnergy.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Fatalities.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Fertility.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Franses1998.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/FrozenJuice.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/GermanUnemployment.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Greene2003.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/GrowthDJ.RNULL</span></span>
+<span><span class="co">#&gt; Warning: UNRELIABLE VALUE: Future ('&lt;none&gt;') unexpectedly generated random</span></span>
+<span><span class="co">#&gt; numbers without specifying argument 'seed'. There is a risk that those random</span></span>
+<span><span class="co">#&gt; numbers are not statistically sound and the overall results might be invalid.</span></span>
+<span><span class="co">#&gt; To fix this, specify 'seed=TRUE'. This ensures that proper, parallel-safe random</span></span>
+<span><span class="co">#&gt; numbers are produced via the L'Ecuyer-CMRG method. To disable this check, use</span></span>
+<span><span class="co">#&gt; 'seed=NULL', or set option 'future.rng.onMisuse' to "ignore".</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/GrowthSW.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Grunfeld.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Guns.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/HealthInsurance.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/HMDA.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/HousePrices.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ivreg.fit.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ivreg.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Journals.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/KleinI.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Longley.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ManufactCosts.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/MarkDollar.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/MarkPound.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/MASchools.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Medicaid1986.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Mortgage.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/MotorCycles.RNULL</span></span>
+<span><span class="co">#&gt; Warning: UNRELIABLE VALUE: Future ('&lt;none&gt;') unexpectedly generated random</span></span>
+<span><span class="co">#&gt; numbers without specifying argument 'seed'. There is a risk that those random</span></span>
+<span><span class="co">#&gt; numbers are not statistically sound and the overall results might be invalid.</span></span>
+<span><span class="co">#&gt; To fix this, specify 'seed=TRUE'. This ensures that proper, parallel-safe random</span></span>
+<span><span class="co">#&gt; numbers are produced via the L'Ecuyer-CMRG method. To disable this check, use</span></span>
+<span><span class="co">#&gt; 'seed=NULL', or set option 'future.rng.onMisuse' to "ignore".</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Municipalities.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/MurderRates.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/NaturalGas.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/NMES1988.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/NYSESW.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/OECDGas.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/OECDGrowth.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/OlympicTV.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/OrangeCounty.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/Parade2005.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/PepperPrice.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/PhDPublications.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ProgramEffectiveness.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/PSID1976.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/PSID1982.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/RecreationDemand.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ResumeNames.RNULL</span></span>
+<span><span class="co">#&gt; Warning: UNRELIABLE VALUE: Future ('&lt;none&gt;') unexpectedly generated random</span></span>
+<span><span class="co">#&gt; numbers without specifying argument 'seed'. There is a risk that those random</span></span>
+<span><span class="co">#&gt; numbers are not statistically sound and the overall results might be invalid.</span></span>
+<span><span class="co">#&gt; To fix this, specify 'seed=TRUE'. This ensures that proper, parallel-safe random</span></span>
+<span><span class="co">#&gt; numbers are produced via the L'Ecuyer-CMRG method. To disable this check, use</span></span>
+<span><span class="co">#&gt; 'seed=NULL', or set option 'future.rng.onMisuse' to "ignore".</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/ShipAccidents.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/SIC33.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/SmokeBan.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/SportsCards.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/STAR.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/StockWatson2007.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/StrikeDuration.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/summary.ivreg.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/SwissLabor.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/TeachingRatings.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/TechChange.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/tobit.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/TradeCredit.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/TravelMode.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/UKInflation.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/UKNonDurables.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USAirlines.RNULL</span></span>
+<span><span class="co">#&gt; Warning: UNRELIABLE VALUE: Future ('&lt;none&gt;') unexpectedly generated random</span></span>
+<span><span class="co">#&gt; numbers without specifying argument 'seed'. There is a risk that those random</span></span>
+<span><span class="co">#&gt; numbers are not statistically sound and the overall results might be invalid.</span></span>
+<span><span class="co">#&gt; To fix this, specify 'seed=TRUE'. This ensures that proper, parallel-safe random</span></span>
+<span><span class="co">#&gt; numbers are produced via the L'Ecuyer-CMRG method. To disable this check, use</span></span>
+<span><span class="co">#&gt; 'seed=NULL', or set option 'future.rng.onMisuse' to "ignore".</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USConsump1950.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USConsump1979.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USConsump1993.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USCrudes.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USGasB.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USGasG.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USInvest.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USMacroB.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USMacroG.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USMacroSW.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USMacroSWM.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USMacroSWQ.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USMoney.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USProdIndex.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USSeatBelts.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/USStocksSW.RNULL</span></span>
+<span><span class="co">#&gt; Loading  AER </span></span>
+<span><span class="co">#&gt;  and running  /tmp/RtmpMPiGPXwontrun_download/AER/AER_0.2-1/scripts/WeakInstrument.RNULL</span></span>
+<span><span class="co">#&gt; Warning: UNRELIABLE VALUE: Future ('&lt;none&gt;') unexpectedly generated random</span></span>
+<span><span class="co">#&gt; numbers without specifying argument 'seed'. There is a risk that those random</span></span>
+<span><span class="co">#&gt; numbers are not statistically sound and the overall results might be invalid.</span></span>
+<span><span class="co">#&gt; To fix this, specify 'seed=TRUE'. This ensures that proper, parallel-safe random</span></span>
+<span><span class="co">#&gt; numbers are produced via the L'Ecuyer-CMRG method. To disable this check, use</span></span>
+<span><span class="co">#&gt; 'seed=NULL', or set option 'future.rng.onMisuse' to "ignore".</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/summary_wontrun.html">summary_wontrun</a></span><span class="op">(</span><span class="va">aer_runs</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 7 × 2</span></span>
+<span><span class="co">#&gt;   classes                                               total</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                                                 &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1 simpleWarning-warning-condition                           2</span></span>
+<span><span class="co">#&gt; 2 defunctError-error-condition                              3</span></span>
+<span><span class="co">#&gt; 3 deprecatedWarning-warning-condition                       4</span></span>
+<span><span class="co">#&gt; 4 simpleError-error-condition                               4</span></span>
+<span><span class="co">#&gt; 5 packageNotFoundError-error-condition                      9</span></span>
+<span><span class="co">#&gt; 6 packageStartupMessage-simpleMessage-message-condition    16</span></span>
+<span><span class="co">#&gt; 7 list                                                     65</span></span></code></pre></div>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">

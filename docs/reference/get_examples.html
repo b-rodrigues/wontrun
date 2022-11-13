@@ -55,25 +55,21 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_examples</span><span class="op">(</span><span class="va">name</span>, <span class="va">version</span>, <span class="va">url</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_examples</span><span class="op">(</span><span class="va">sources_df</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, test <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>name</dt>
-<dd><p>String. Name of the packages.</p></dd>
-
-
-<dt>version</dt>
-<dd><p>String. Version of the package to download.</p></dd>
-
-
-<dt>url</dt>
-<dd><p>String. Link to archived package tar file.</p></dd>
+    <dl><dt>sources_df</dt>
+<dd><p>Data frame. A data frame as returned by `get_sources_for_selected_packages()`</p></dd>
 
 
 <dt>clean</dt>
 <dd><p>Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.</p></dd>
+
+
+<dt>test</dt>
+<dd><p>Boolean, defaults to FALSE. TRUE is only useful for running unit tests.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -81,13 +77,6 @@
     
 
 <p>Side-effect. No returned object, writes a Rd files to disk.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function returns a data frame with a column `name` giving the name
-of a package, `version` giving its version, `url` the download url
-`last_modified` the date on which the package was last modified on CRAN
-and `size`, the size of the package</p>
     </div>
 
     <div class="section level2">
@@ -100,8 +89,7 @@ and `size`, the size of the package</p>
 <span class="r-in"><span><span class="va">ctv_econ_sources</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_sources_for_selected_packages.html">get_sources_for_selected_packages</a></span><span class="op">(</span><span class="va">ctv_econ</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># It is now possible to download the man/ folders of these packages with the following lines</span></span></span>
-<span class="r-in"><span><span class="va">ctv_econ_sources</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">mutate</span><span class="op">(</span>get_sources <span class="op">=</span> <span class="fu">pmap</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">version</span>, <span class="va">url</span><span class="op">)</span>, <span class="va">get_examples</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_examples</span><span class="op">(</span><span class="va">ctv_econ_sources</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
