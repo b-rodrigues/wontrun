@@ -49,11 +49,15 @@ aer_sources
 
 ```
 
-```{r, echo = F}
+```{r, eval = F}
 aer_runs <- aer_sources %>%
   wontrun(ncpus = 6, years = 2008)
 ```
 
+```{r, include = F}
+aer_runs <- aer_sources %>%
+  wontrun(ncpus = 6, years = 2008)
+```
 
 ```{r}
 summary_wontrun(aer_runs)
