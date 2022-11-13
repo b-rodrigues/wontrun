@@ -49,7 +49,7 @@ aer_sources
 
 ```
 
-```{r}
+```{r, echo = F}
 aer_runs <- aer_sources %>%
   wontrun(ncpus = 6, years = 2008)
 ```
