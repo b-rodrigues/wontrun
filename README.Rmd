@@ -18,8 +18,8 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of retrex is to make it easy to run examples from archived package source on current versions of packages in order
-to test RETRocompatibility of EXamples and ultimately evaluate reproducibility of code.
+The goal of {wontrun} is to test the longevity of old code for the R programming language by making
+it easy to run examples from archived package sources on current versions of packages.
 
 ## Installation
 
@@ -62,3 +62,11 @@ aer_runs <- aer_sources %>%
 ```{r}
 summary_wontrun(aer_runs)
 ```
+
+## Thanks
+
+- Thanks to [Dirk Eddelbuettel](https://twitter.com/eddelbuettel/status/1588149491772923907?s=20&t=aRcs1VTwn1861biBikjdiA) for the idea!
+- Thanks to [Deemah](https://fediscience.org/@dmi3kno/109296599193965025) for suggesting the name of the package!
+- Thanks to [Jenny Bryan](https://twitter.com/JennyBryan/status/1590788394405498880?s=20&t=aRcs1VTwn1861biBikjdiA) for suggesting using `{callr}` which I use in this package.
+- Thanks to [David Hood](https://mastodon.nz/@thoughtfulnz/109330296529120658) for suggesting the term *code longevity*.
+- and thanks to [everyone on Mastodon](https://fosstodon.org/@brodriguesco/109330164860035432) for the helpful discussions!
