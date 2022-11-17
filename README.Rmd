@@ -13,17 +13,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-# {wontrun}
+# wontrun <img src="man/figures/logo.png" align="right" class="logo"/>
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of {wontrun} is to test the longevity of old code for the R programming language by making
+The goal of `{wontrun}` is to test the longevity of old code for the R programming language by making
 it easy to run examples from archived package sources on current versions of packages.
 
 ## Installation
 
-`{retrex}` is not available on CRAN, but you can install the development version of retrex like so:
+`{wontrun}` is not available on CRAN, but you can install the development version like so:
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
@@ -36,7 +36,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(wontrun)
-
+cl <- parallel::detectCores()-2
 ```
 
 ```{r}
@@ -51,12 +51,12 @@ aer_sources
 
 ```{r, eval = F}
 aer_runs <- aer_sources %>%
-  wontrun(ncpus = 6, years = 2008)
+  wontrun(ncpus = cl, years = 2008)
 ```
 
 ```{r, include = F}
 aer_runs <- aer_sources %>%
-  wontrun(ncpus = 6, years = 2008)
+  wontrun(ncpus = cl, years = 2008)
 ```
 
 ```{r}
