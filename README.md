@@ -12,7 +12,7 @@ package sources on current versions of packages.
 
 ## Installation
 
-`{retrex}` is not available on CRAN, but you can install the development
+`{wontrun}` is not available on CRAN, but you can install the development
 version of retrex like so:
 
 ``` r
