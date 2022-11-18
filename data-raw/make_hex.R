@@ -36,15 +36,24 @@ wr_hex_gh <- wr_hex %>%
 gh_logo <- bunny::github %>%
   image_scale("40x40")
 
+# Alternative texts
+# - Code longevity. Tested.
+# - Vintage code clinic
+# - Veteran code gym
+# - New dog, old tricks
+# - How’s your old code doing?
+# - Physiotherapy for old code
+
+
 wr_ghcard <- image_canvas_ghcard(fill_color = bg_col) %>%
   image_composite(wr_hex_gh, gravity = "East", offset = "+100+0") %>%
-  image_annotate("Give your old examples", gravity = "West", location = "+60-80",
-                 color=br_col, size=55, font="Volkhov", weight = 500) %>%
-  image_annotate("a second chance", gravity = "West", location = "+60-10",
-                 color=br_col, size=55, font="Volkhov", weight = 500) %>%
-  image_compose(gh_logo, gravity="West", offset = "+60+70") %>%
+  image_annotate("Code longevity.", gravity = "West", location = "+100-50",
+                 color=br_col, size=60, font="Aller", weight = 500) %>%
+  image_annotate("Tested.", gravity = "West", location = "+100+20",
+                 color=br_col, size=60, font="Aller", weight = 500) %>%
+  image_compose(gh_logo, gravity="West", offset = "+100+100") %>%
   image_annotate("b-rodrigues/wontrun", gravity="West",
-                 location="+110+70", size=38, font="Ubuntu Mono") %>%
+                 location="+150+100", size=38, font="Ubuntu Mono") %>%
   image_border_ghcard(bg_col) %>%
   image_scale("50%")
 
