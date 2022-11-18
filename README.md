@@ -76,7 +76,7 @@ summary_wontrun(aer_runs)
   for the idea!
 - Thanks to
   [Deemah](https://fediscience.org/@dmi3kno/109296599193965025) for
-  suggesting the name of the package and making the logo!
+  suggesting the name of the package and making the hex logo and github card!
 - Thanks to [Jenny
   Bryan](https://twitter.com/JennyBryan/status/1590788394405498880?s=20&t=aRcs1VTwn1861biBikjdiA)
   for suggesting using `{callr}` which I use in this package.
