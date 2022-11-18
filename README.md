@@ -1,19 +1,19 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# {wontrun}
+# wontrun <img src="man/figures/logo.png" align="right" class="logo"/>
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of {wontrun} is to test the longevity of old code for the R
+The goal of `{wontrun}` is to test the longevity of old code for the R
 programming language by making it easy to run examples from archived
 package sources on current versions of packages.
 
 ## Installation
 
-`{wontrun}` is not available on CRAN, but you can install the development
-version of retrex like so:
+`{wontrun}` is not available on CRAN, but you can install the
+development version like so:
 
 ``` r
 # install.packages("devtools")
@@ -26,6 +26,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(wontrun)
+cl <- parallel::detectCores()-2
 ```
 
 ``` r
@@ -52,21 +53,20 @@ aer_sources
 
 ``` r
 aer_runs <- aer_sources %>%
-  wontrun(ncpus = 6, years = 2008)
+  wontrun(ncpus = cl, years = 2008)
 ```
 
 ``` r
 summary_wontrun(aer_runs)
-#> # A tibble: 7 × 2
+#> # A tibble: 6 × 2
 #>   classes                                               total
 #>   <chr>                                                 <int>
 #> 1 simpleWarning-warning-condition                           2
 #> 2 defunctError-error-condition                              3
-#> 3 deprecatedWarning-warning-condition                       4
-#> 4 simpleError-error-condition                               4
-#> 5 packageNotFoundError-error-condition                      9
-#> 6 packageStartupMessage-simpleMessage-message-condition    16
-#> 7 list                                                     65
+#> 3 simpleError-error-condition                               4
+#> 4 packageStartupMessage-simpleMessage-message-condition     6
+#> 5 packageNotFoundError-error-condition                     23
+#> 6 list                                                     65
 ```
 
 ## Thanks
