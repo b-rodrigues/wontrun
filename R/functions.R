@@ -29,7 +29,10 @@ generate_script_from_help <- function(path_to_rd){
   script_path <- stringr::str_replace(path_to_rd, "man", "scripts")
   script_path <- stringr::str_replace(script_path, "\\.Rd", "\\.R")
 
-  tools::Rd2ex(path_to_rd, script_path)
+  # By default, stages = "render", which executes \Sexpr macros
+  # this was problematic because code would get executed and fail
+  # even if it was outside examples (see dplyr 0.8's combine.Rd for example)
+  tools::Rd2ex(path_to_rd, script_path, stages = "build")
 }
 
 #' Creates a tibble with the urls to the archived sources of a package
@@ -177,6 +180,7 @@ get_sources_for_selected_packages <- function(view_df){
 #' @param version String. Version of the package to download.
 #' @param url String. Link to archived package tar file.
 #' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
+#' @importFrom purrr keep map
 #' @return Side-effect. No returned object, writes a Rd files to disk.
 #' @details
 #' This function returns a data frame with a column `name` giving the name
@@ -210,8 +214,15 @@ get_example <- function(name, version, url, clean = TRUE){
 
   rds_paths <- list.files(paste0(exdir_path, "/man"), full.names = TRUE)
 
-  purrr::map(rds_paths,
-             generate_script_from_help)
+  # need to remove paths that are pointing to .Rd files (for example dplyr 0.7.5
+  # has a `figures` folder in `man/` which causes a bug
+
+
+  rds_paths <- rds_paths %>%
+    keep(\(x)(grepl("\\.Rd$", x))) 
+
+  map(rds_paths,
+      generate_script_from_help)
 
   exdir_path
 
@@ -299,6 +310,7 @@ run_examples <- function(sources_df_with_path, ncpus = 1){
 #' @return Side-effect. No returned object, writes a Rd files to disk.
 #' @importFrom dplyr filter group_by ungroup mutate
 #' @importFrom lubridate year
+#' @importFrom rlang quo `!!`
 #' @export
 #' @examples
 #' \dontrun{
@@ -306,17 +318,24 @@ run_examples <- function(sources_df_with_path, ncpus = 1){
 #' aer_runs <- aer_sources %>%
 #'   wontrun(ncpus = 6, years = 2008)
 #' }
-wontrun <- function(packages_df, ncpus, years, earliest = TRUE){
+wontrun <- function(packages_df, ncpus, years = NULL, earliest = TRUE){
+
+  if(is.null(years)){
+
+    years <- quo(year(last_modified))
+
+  }
 
   packages_df_sources <- packages_df %>%
     #get_sources_for_selected_packages(packages_df) %>%
-    filter(lubridate::year(last_modified) %in% years)
+    filter(year(last_modified) %in% !!years)
 
   if(earliest){
     packages_df_sources <- packages_df_sources %>%
-      group_by(name, lubridate::year(last_modified)) %>%
+      group_by(name,  year(last_modified)) %>%
       filter(last_modified == min(last_modified)) %>%
-      ungroup()
+      ungroup() %>%
+      select(-contains("year"))
   }
 
   message("Running examples...")
@@ -324,25 +343,25 @@ wontrun <- function(packages_df, ncpus, years, earliest = TRUE){
 }
 
 
-#' Summarise results from wontrun
-#' @param wontrun_df Data frame. A data frame as returned by `get_archived_sources()`
-#' @return Side-effect. No returned object, writes a Rd files to disk.
-#' @importFrom dplyr mutate count arrange
-#' @importFrom purrr map map_chr
+#' Adds two columns to help decode the results of wontrun()
+#' @param wontrun_df Data frame. A data frame as returned by `wontrun()`
+#' @return The input tibble with 2 more columns, `classes` and `cnd_message`
+#' @importFrom dplyr mutate
+#' @importFrom rlang cnd_message
+#' @importFrom purrr map map_chr map_lgl
 #' @export
 #' @examples
 #' \dontrun{
 #' aer_sources <- get_archived_sources("AER")
 #' aer_runs <- aer_sources %>%
 #'   wontrun(ncpus = 6, years = 2008)
-#' summary_wontrun(aer_runs)
+#' decode_wontrun(aer_runs)
 #' }
-summary_wontrun <- function(wontrun_df){
+decode_wontrun <- function(wontrun_df, ...){
   wontrun_df %>%
     mutate(classes = map(runs, class),
            classes = map_chr(classes,
-                             ~paste0(., collapse = "-"))) %>%
-    count(classes, name = "total") %>%
-    arrange(total)
+                             ~paste0(., collapse = "-")),
+           message = map_chr(runs, cnd_message))
 
 }

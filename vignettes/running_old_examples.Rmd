@@ -20,7 +20,33 @@ library(dplyr)
 library(purrr)
 ```
 
-We need to start with a list of packages. Using `get_packages_from_view()`, we get a 
+We need to start with a list of packages. Two functions can be used for this, either 
+`get_archived_sources()`, which takes a package name, or `get_packages_from_view()`,
+which takes the name of a CRAN Task View, and optionally a date.
+
+Get the archived sources for the `{dplyr}` package:
+
+```{r, eval = F}
+dplyr_sources <- get_archived_sources("dplyr")
+
+
+dplyr_sources
+```
+
+```{r, echo = f}
+readRDS("dplyr_runs.Rds")
+```
+
+
+
+
+```{r, eval = F}
+cl <- parallel::detectCores()-2
+
+dplyr_runs <- wontrun(dplyr_sources, ncpus = cl)
+```
+
+Using `get_packages_from_view()`, we get a 
 data frame with packages from a CRAN Task View. But you can provide any data frame
 with a column called `name` where each element is a package name. The lines below 
 show you how to get a data frame, called `econ_source` that contains the packages

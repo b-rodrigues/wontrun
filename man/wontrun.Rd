@@ -4,7 +4,7 @@
 \alias{wontrun}
 \title{wontrun}
 \usage{
-wontrun(packages_df, ncpus, years, earliest = TRUE)
+wontrun(packages_df, ncpus, years = NULL, earliest = TRUE)
 }
 \arguments{
 \item{packages_df}{Data frame. A data frame as returned by `get_archived_sources()`}
