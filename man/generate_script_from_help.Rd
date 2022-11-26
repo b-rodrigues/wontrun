@@ -4,10 +4,12 @@
 \alias{generate_script_from_help}
 \title{Generates an R script with the examples from an Rd file.}
 \usage{
-generate_script_from_help(path_to_rd)
+generate_script_from_help(path_to_rd, rm_dont_run = TRUE)
 }
 \arguments{
 \item{path_to_rd}{String. Path to Rd file you wish to convert to a script}
+
+\item{rm_dont_run}{Boolean. Should scripts with \dontrun tag be ignored? Defaults to TRUE.}
 }
 \value{
 Side-effect. No returned object, writes a script on disk.

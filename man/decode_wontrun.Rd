@@ -4,7 +4,7 @@
 \alias{decode_wontrun}
 \title{Adds two columns to help decode the results of wontrun()}
 \usage{
-decode_wontrun(wontrun_df, ...)
+decode_wontrun(wontrun_df)
 }
 \arguments{
 \item{wontrun_df}{Data frame. A data frame as returned by `wontrun()`}
@@ -20,6 +20,6 @@ Adds two columns to help decode the results of wontrun()
 aer_sources <- get_archived_sources("AER")
 aer_runs <- aer_sources \%>\%
   wontrun(ncpus = 6, years = 2008)
-summary_wontrun(aer_runs)
+decode_wontrun(aer_runs)
 }
 }

@@ -33,18 +33,18 @@ dplyr_sources <- get_archived_sources("dplyr")
 dplyr_sources
 ```
 
-```{r, echo = f}
-readRDS("dplyr_runs.Rds")
-```
-
-
-
 
 ```{r, eval = F}
 cl <- parallel::detectCores()-2
 
 dplyr_runs <- wontrun(dplyr_sources, ncpus = cl)
 ```
+
+
+```{r, echo = f}
+dplyr_runs <- readRDS("dplyr_runs.Rds")
+```
+
 
 Using `get_packages_from_view()`, we get a 
 data frame with packages from a CRAN Task View. But you can provide any data frame

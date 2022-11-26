@@ -1,5 +1,6 @@
 #' Generates an R script with the examples from an Rd file.
 #' @param path_to_rd String. Path to Rd file you wish to convert to a script
+#' @param rm_dont_run Boolean. Should scripts with \dontrun tag be ignored? Defaults to TRUE.
 #' @importFrom stringr str_extract str_replace
 #' @importFrom tools Rd2ex
 #' @return Side-effect. No returned object, writes a script on disk.
@@ -9,11 +10,25 @@
 #' the man/ folder of source packages and writes them to disk, next to the Rd files.
 #' @examples
 #' get_archived_sources("AER")
-generate_script_from_help <- function(path_to_rd){
+generate_script_from_help <- function(path_to_rd, rm_dont_run = TRUE){
 
   # Get root of package, with man/
   folder_root <- stringr::str_extract(path_to_rd,
                                       "^(.*?man\\/)")
+
+
+
+  # Detect if resulting script file has a \dontrun tag
+  # if yes, remove just ignore it. This is a bit overkill, because
+  # in cases where there's this tag alongside valid examples, they 
+  # all get ignored. I still expect this to happen rarely though.
+  if({
+    readLines(path_to_rd) %>%
+      stringr::str_detect("dontrun") %>%
+      any()
+  }){
+    return(NULL)
+  } else {
 
   # Replace man/ with scripts/
   scripts_path <- stringr::str_replace(folder_root, "man", "scripts")
@@ -33,6 +48,9 @@ generate_script_from_help <- function(path_to_rd){
   # this was problematic because code would get executed and fail
   # even if it was outside examples (see dplyr 0.8's combine.Rd for example)
   tools::Rd2ex(path_to_rd, script_path, stages = "build")
+
+  }
+
 }
 
 #' Creates a tibble with the urls to the archived sources of a package
@@ -265,7 +283,6 @@ get_examples <- function(sources_df, clean = TRUE, test = FALSE){
 #' @export
 run_examples <- function(sources_df_with_path, ncpus = 1){
 
-  future::plan(future::multisession, workers = ncpus)
 
   chatty_source <- function(name, script){
     print(paste0("Running", script))
@@ -283,7 +300,8 @@ run_examples <- function(sources_df_with_path, ncpus = 1){
     )
   }
 
-  #p_run_script <- purrr::possibly(run_script, otherwise = NULL)
+
+  future::plan(future::multisession, workers = ncpus)
 
  # sources_df_with_path <- sources_df_with_path %>%
   sources_df_with_path %>%
@@ -357,11 +375,11 @@ wontrun <- function(packages_df, ncpus, years = NULL, earliest = TRUE){
 #'   wontrun(ncpus = 6, years = 2008)
 #' decode_wontrun(aer_runs)
 #' }
-decode_wontrun <- function(wontrun_df, ...){
+decode_wontrun <- function(wontrun_df){
   wontrun_df %>%
+    select(name, version, last_modified, scripts_paths, runs) %>%
     mutate(classes = map(runs, class),
            classes = map_chr(classes,
                              ~paste0(., collapse = "-")),
            message = map_chr(runs, cnd_message))
-
 }
