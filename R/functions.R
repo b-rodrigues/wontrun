@@ -16,8 +16,6 @@ generate_script_from_help <- function(path_to_rd, rm_dont_run = TRUE){
   folder_root <- stringr::str_extract(path_to_rd,
                                       "^(.*?man\\/)")
 
-
-
   # Detect if resulting script file has a \dontrun tag
   # if yes, remove just ignore it. This is a bit overkill, because
   # in cases where there's this tag alongside valid examples, they 
@@ -281,6 +279,43 @@ get_examples <- function(sources_df, clean = TRUE, test = FALSE){
 }
 
 
+#' @importFrom purrr keep
+#' @importFrom stringr str_remove_all str_trim
+#' @importFrom renv dependencies
+#' @export
+setup_wontrun <- function(script_path, wontrun_lib, ...){
+
+  withr::with_libpaths(wontrun_lib,
+                       devtools::install_github("b-rodrigues/wontrun", ref = "master",
+                                                upgrade = "never")
+                       )
+
+  deps <- renv::dependencies(script_path)
+
+  loaded_data <- readLines(script_path) %>%
+    purrr::keep(~grepl("data.*package", .)) %>%
+    stringr::str_remove_all("(.*package.*=)") %>%
+    stringr::str_remove_all('\\(|\\)|\\"') %>%
+    stringr::str_trim()
+
+  packages <- c("devtools", "pacman", deps$Package, loaded_data)
+
+  installed_packages <- packages %in% rownames(installed.packages(lib.loc = wontrun_lib))
+
+  if (any(installed_packages == FALSE)) {
+    install.packages(packages[!installed_packages],
+                     lib = wontrun_lib,
+                     ask = F,
+                     dependencies = TRUE,
+                     ...)
+  }
+
+  message("Done with setting up wontrun project.")
+
+}
+
+
+#' @importFrom pacman p_load
 #' @export
 with_pload <- function(package, code){
 
@@ -292,19 +327,33 @@ with_pload <- function(package, code){
 
 }
 
+#' @importFrom callr r_vanilla
+#' @importFrom rlang try_fetch
+#' @importFrom future plan
+#' @importFrom furrr 
 #' @export
-run_examples <- function(sources_df_with_path, ncpus = 1){
+run_examples <- function(sources_df_with_path,
+                         ncpus,
+                         setup,
+                         wontrun_lib,
+                         ...){
 
 
-  run_script <- function(name, script){
+  if (!dir.exists(wontrun_lib)){
+    dir.create(wontrun_lib)
+  }
+
+  run_script <- function(name, script, libpath = wontrun_lib){
+
     print(cat("Loading ", name, "\n", "and running ", script))
-    callr::r(function(x, y){ #x is the package, y is the source file to run
+    callr::r_vanilla(function(x, y){ #x is the package, y is the source file to run
       wontrun::with_pload(x,
                  rlang::try_fetch(
                           source(y),
                           condition = function(cnd) cnd))
     },
-      args = list(x = name, y = script)
+    args = list(x = name, y = script),
+    libpath = libpath
     )
   }
 
@@ -312,14 +361,24 @@ run_examples <- function(sources_df_with_path, ncpus = 1){
   future::plan(future::multisession, workers = ncpus)
 
  # sources_df_with_path <- sources_df_with_path %>%
-  sources_df_with_path %>%
+  sources_df_with_path <- sources_df_with_path %>%
     mutate(exdir_script_path = paste0(exdir_path, "/scripts")) %>%
     dplyr::group_by(name) %>%
     mutate(scripts_paths = list(
              list.files(exdir_script_path, full.names = TRUE))
            ) %>%
     dplyr::ungroup() %>%
-    unnest(cols = c(scripts_paths)) %>%
+    unnest(cols = c(scripts_paths))
+
+  message("Setting up wontrun_lib")
+  if(setup){
+    sources_df_with_path$scripts_paths %>%
+      purrr::map(~setup_wontrun(., wontrun_lib = wontrun_lib))
+  }
+  message("Done setting up wontrun_lib")
+
+
+  sources_df_with_path %>%
     mutate(runs = furrr::future_map2(
                            name,
                            scripts_paths,
@@ -344,7 +403,12 @@ run_examples <- function(sources_df_with_path, ncpus = 1){
 #' aer_runs <- aer_sources %>%
 #'   wontrun(ncpus = 6, years = 2008)
 #' }
-wontrun <- function(packages_df, ncpus, years = NULL, earliest = TRUE){
+wontrun <- function(packages_df,
+                    ncpus = 1,
+                    years = NULL,
+                    earliest = TRUE,
+                    setup = FALSE,
+                    wontrun_lib){
 
   if(is.null(years)){
 
@@ -365,7 +429,12 @@ wontrun <- function(packages_df, ncpus, years = NULL, earliest = TRUE){
   }
 
   message("Running examples...")
-  run_examples(get_examples(packages_df_sources), ncpus)
+  run_examples(
+    get_examples(packages_df_sources),
+    ncpus = ncpus,
+    setup = setup,
+    wontrun_lib = wontrun_lib
+  )
 }
 
 
