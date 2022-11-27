@@ -280,22 +280,30 @@ get_examples <- function(sources_df, clean = TRUE, test = FALSE){
   }
 }
 
+
+#' @export
+with_pload <- function(package, code){
+
+  pacman::p_load(char = package)
+
+  on.exit(detach(paste0("package:", package), character.only = TRUE))
+
+  force(code)
+
+}
+
 #' @export
 run_examples <- function(sources_df_with_path, ncpus = 1){
 
 
-  chatty_source <- function(name, script){
-    print(paste0("Running", script))
-    withr::with_package(name, source(script))
-  }
-
   run_script <- function(name, script){
     print(cat("Loading ", name, "\n", "and running ", script))
-    callr::r(function(x, y){
-      withr::with_package(x,
-                          rlang::try_fetch(
-                                   source(y),
-                                   condition = function(cnd) cnd))},
+    callr::r(function(x, y){ #x is the package, y is the source file to run
+      wontrun::with_pload(x,
+                 rlang::try_fetch(
+                          source(y),
+                          condition = function(cnd) cnd))
+    },
       args = list(x = name, y = script)
     )
   }
