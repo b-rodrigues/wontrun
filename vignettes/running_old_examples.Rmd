@@ -26,20 +26,28 @@ which takes the name of a CRAN Task View, and optionally a date.
 
 Get the archived sources for the `{dplyr}` package:
 
-```{r, eval = F}
+```{r}
 dplyr_sources <- get_archived_sources("dplyr")
+```
 
+This is what it looks like:
 
+```{r}
 dplyr_sources
 ```
 
+Let's also choose how many cores we want to use to run the examples, as this is a 
+time-consuming operation:
 
 ```{r, eval = F}
 cl <- parallel::detectCores()-2
-
-dplyr_runs <- wontrun(dplyr_sources, ncpus = cl)
 ```
 
+We can now run the examples contained in the archived packages with the `wontrun()` function:
+
+```{r, eval = F}
+dplyr_runs <- wontrun(dplyr_sources, ncpus = cl)
+```
 
 ```{r, echo = f}
 dplyr_runs <- readRDS("dplyr_runs.Rds")

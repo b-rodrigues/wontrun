@@ -32,35 +32,41 @@ devtools::install_github("b-rodrigues/wontrun", ref = "master")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Get the archived sources for the `{dplyr}` package:
 
-```{r example}
+```{r}
 library(wontrun)
-cl <- parallel::detectCores()-2
+dplyr_sources <- get_archived_sources("dplyr")
 ```
+
+This is what this looks like:
 
 ```{r}
-aer_sources <- get_archived_sources("AER")
-
+dplyr_sources
 ```
 
-```{r}
-aer_sources
-
-```
+Let's also choose how many cores we want to use to run the examples, as this is a 
+time-consuming operation:
 
 ```{r, eval = F}
-aer_runs <- aer_sources %>%
-  wontrun(ncpus = cl, years = 2008)
+cl <- 6
 ```
 
-```{r, include = F}
-aer_runs <- aer_sources %>%
-  wontrun(ncpus = cl, years = 2008)
+We can now run the examples contained in the archived packages with the `wontrun()` function:
+
+```{r, eval = F}
+# By default, wontrun() will only consider the earliest package in a given year
+dplyr_runs <- wontrun(dplyr_sources, ncpus = cl)
 ```
+
+```{r, echo = F} 
+dplyr_runs <- readRDS("dplyr_runs.Rds")
+```
+
+The package provides a `decode_wontrun()` function to summarise the results:
 
 ```{r}
-summary_wontrun(aer_runs)
+decode_wontrun(dplyr_runs)
 ```
 
 ## Thanks

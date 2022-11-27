@@ -22,51 +22,67 @@ devtools::install_github("b-rodrigues/wontrun", ref = "master")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Get the archived sources for the `{dplyr}` package:
 
 ``` r
 library(wontrun)
-cl <- parallel::detectCores()-2
+dplyr_sources <- get_archived_sources("dplyr")
 ```
 
-``` r
-aer_sources <- get_archived_sources("AER")
-```
+This is what this looks like:
 
 ``` r
-aer_sources
-#> # A tibble: 25 × 5
-#>    name  version   url                                 last_modified       size 
-#>    <chr> <chr>     <chr>                               <dttm>              <chr>
-#>  1 AER   AER_0.2-1 https://cran.r-project.org/src/con… 2008-05-05 00:22:00 2.4M 
-#>  2 AER   AER_0.2-2 https://cran.r-project.org/src/con… 2008-05-05 11:43:00 2.4M 
-#>  3 AER   AER_0.9-0 https://cran.r-project.org/src/con… 2008-05-28 23:21:00 2.4M 
-#>  4 AER   AER_1.0-0 https://cran.r-project.org/src/con… 2008-08-26 12:53:00 2.6M 
-#>  5 AER   AER_1.0-1 https://cran.r-project.org/src/con… 2008-10-22 13:15:00 2.6M 
-#>  6 AER   AER_1.1-0 https://cran.r-project.org/src/con… 2009-02-05 19:44:00 2.6M 
-#>  7 AER   AER_1.1-1 https://cran.r-project.org/src/con… 2009-03-08 15:32:00 2.6M 
-#>  8 AER   AER_1.1-2 https://cran.r-project.org/src/con… 2009-03-19 15:59:00 2.6M 
-#>  9 AER   AER_1.1-3 https://cran.r-project.org/src/con… 2009-05-22 00:31:00 2.6M 
-#> 10 AER   AER_1.1-4 https://cran.r-project.org/src/con… 2009-09-23 22:49:00 2.7M 
-#> # … with 15 more rows
+dplyr_sources
+#> # A tibble: 39 × 5
+#>    name  version       url                             last_modified       size 
+#>    <chr> <chr>         <chr>                           <dttm>              <chr>
+#>  1 dplyr dplyr_0.1.1   https://cran.r-project.org/src… 2014-01-29 21:24:00 530K 
+#>  2 dplyr dplyr_0.1.2   https://cran.r-project.org/src… 2014-02-24 16:36:00 533K 
+#>  3 dplyr dplyr_0.1.3   https://cran.r-project.org/src… 2014-03-15 00:36:00 535K 
+#>  4 dplyr dplyr_0.1     https://cran.r-project.org/src… 2014-01-16 22:53:00 2.7M 
+#>  5 dplyr dplyr_0.2     https://cran.r-project.org/src… 2014-05-21 08:20:00 577K 
+#>  6 dplyr dplyr_0.3.0.1 https://cran.r-project.org/src… 2014-10-08 05:21:00 629K 
+#>  7 dplyr dplyr_0.3.0.2 https://cran.r-project.org/src… 2014-10-11 07:43:00 628K 
+#>  8 dplyr dplyr_0.3     https://cran.r-project.org/src… 2014-10-04 06:39:00 629K 
+#>  9 dplyr dplyr_0.4.0   https://cran.r-project.org/src… 2015-01-08 11:12:00 870K 
+#> 10 dplyr dplyr_0.4.1   https://cran.r-project.org/src… 2015-01-14 07:15:00 870K 
+#> # … with 29 more rows
 ```
 
-``` r
-aer_runs <- aer_sources %>%
-  wontrun(ncpus = cl, years = 2008)
-```
+Let’s also choose how many cores we want to use to run the examples, as
+this is a time-consuming operation:
 
 ``` r
-summary_wontrun(aer_runs)
-#> # A tibble: 6 × 2
-#>   classes                                               total
-#>   <chr>                                                 <int>
-#> 1 simpleWarning-warning-condition                           2
-#> 2 defunctError-error-condition                              3
-#> 3 simpleError-error-condition                               4
-#> 4 packageStartupMessage-simpleMessage-message-condition     6
-#> 5 packageNotFoundError-error-condition                     23
-#> 6 list                                                     65
+cl <- 6
+```
+
+We can now run the examples contained in the archived packages with the
+`wontrun()` function:
+
+``` r
+# By default, wontrun() will only consider the earliest package in a given year
+dplyr_runs <- wontrun(dplyr_sources, ncpus = cl)
+```
+
+The package provides a `decode_wontrun()` function to summarise the
+results:
+
+``` r
+decode_wontrun(dplyr_runs)
+#> # A tibble: 5,328 × 7
+#>    name  version   last_modified       scripts_pa…¹ runs         classes message
+#>    <chr> <chr>     <dttm>              <chr>        <list>       <chr>   <chr>  
+#>  1 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <named list> list    ""     
+#>  2 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <pckgStrM>   packag… "Loadi…
+#>  3 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <smplErrr>   simple… "could…
+#>  4 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <pckgStrM>   packag… "Loadi…
+#>  5 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <pckgStrM>   packag… "Loadi…
+#>  6 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <lfcycl_s>   lifecy… "src_s…
+#>  7 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <named list> list    ""     
+#>  8 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <pckgStrM>   packag… "Loadi…
+#>  9 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <smplErrr>   simple… "could…
+#> 10 dplyr dplyr_0.1 2014-01-16 22:53:00 /tmp/Rtmp8X… <pckgStrM>   packag… "Loadi…
+#> # … with 5,318 more rows, and abbreviated variable name ¹​scripts_paths
 ```
 
 ## Thanks
@@ -76,7 +92,7 @@ summary_wontrun(aer_runs)
   for the idea!
 - Thanks to
   [Deemah](https://fediscience.org/@dmi3kno/109296599193965025) for
-  suggesting the name of the package and making the hex logo and github card!
+  suggesting the name of the package!
 - Thanks to [Jenny
   Bryan](https://twitter.com/JennyBryan/status/1590788394405498880?s=20&t=aRcs1VTwn1861biBikjdiA)
   for suggesting using `{callr}` which I use in this package.

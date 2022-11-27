@@ -22,7 +22,7 @@ The `url` column is added to make it easier to download a source package.
 This function is used by `get_sources_for_selected_packages()`.
 }
 \examples{
-dontrun{
+\dontrun{
 get_archived_sources("AER")
 }
 }
