@@ -285,20 +285,35 @@ get_examples <- function(sources_df, clean = TRUE, test = FALSE){
 #' @export
 setup_wontrun <- function(script_path, wontrun_lib, ...){
 
-  withr::with_libpaths(wontrun_lib,
-                       devtools::install_github("b-rodrigues/wontrun", ref = "master",
-                                                upgrade = "never")
-                       )
+  #withr::with_libpaths(wontrun_lib,
+  #                     devtools::install_github("b-rodrigues/wontrun", ref = "master",
+  #                                              upgrade = "never")
+  #                     )
 
-  deps <- renv::dependencies(script_path)
+  deps <- renv::dependencies(script_path, progress = FALSE)
 
   loaded_data <- readLines(script_path) %>%
-    purrr::keep(~grepl("data.*package", .)) %>%
+    purrr::keep(~grepl("data.*,package =", .)) %>%
     stringr::str_remove_all("(.*package.*=)") %>%
     stringr::str_remove_all('\\(|\\)|\\"') %>%
     stringr::str_trim()
 
-  packages <- c("devtools", "pacman", deps$Package, loaded_data)
+  packages <- c(
+    "callr",
+    "devtools",
+    "digest",
+    "furrr",
+    "future",
+    "globals",
+    "listenv",
+    "pacman",
+    "parallelly",
+    "processx",
+    "ps",
+    "renv",
+    deps$Package,
+    loaded_data
+    )
 
   installed_packages <- packages %in% rownames(installed.packages(lib.loc = wontrun_lib))
 
@@ -309,8 +324,6 @@ setup_wontrun <- function(script_path, wontrun_lib, ...){
                      dependencies = TRUE,
                      ...)
   }
-
-  message("Done with setting up wontrun project.")
 
 }
 
@@ -370,12 +383,12 @@ run_examples <- function(sources_df_with_path,
     dplyr::ungroup() %>%
     unnest(cols = c(scripts_paths))
 
-  message("Setting up wontrun_lib")
   if(setup){
+    message("Setting up wontrun_lib")
     sources_df_with_path$scripts_paths %>%
       purrr::map(~setup_wontrun(., wontrun_lib = wontrun_lib))
+    message("Done setting up wontrun_lib")
   }
-  message("Done setting up wontrun_lib")
 
 
   sources_df_with_path %>%
@@ -455,8 +468,10 @@ wontrun <- function(packages_df,
 decode_wontrun <- function(wontrun_df){
   wontrun_df %>%
     select(name, version, last_modified, scripts_paths, runs) %>%
-    mutate(classes = map(runs, class),
+    mutate(scripts = stringr::str_remove_all(scripts_paths, ".*/scripts/"),
+           classes = map(runs, class),
            classes = map_chr(classes,
                              ~paste0(., collapse = "-")),
-           message = map_chr(runs, cnd_message))
+           message = map_chr(runs, cnd_message)) %>%
+    select(-scripts_paths)
 }
