@@ -51,3 +51,21 @@ sources_ctv_econ <- econ_source %>%
   sample_n(10)
 
 usethis::use_data(sources_ctv_econ, overwrite = TRUE)
+
+library(tidyverse)
+r0 <- "https://cran.r-project.org/src/base/R-0/"
+
+r0_links <-  r0 %>%
+  read_html() %>%
+  html_nodes("table") %>%
+  html_table() %>%
+  pluck(1) %>%
+  clean_names() %>%
+  filter(name != "Parent Directory",
+       last_modified != "",
+       size != "-") %>%
+  mutate(last_modified = ymd_hm(last_modified),
+         url = paste0(r0, name)) %>%
+  separate(name, into = c("name", "version"), sep = "-") %>%
+  select(name, version, url, last_modified, size) %>%
+  get_examples(clean = FALSE)
