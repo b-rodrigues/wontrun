@@ -196,6 +196,7 @@ get_sources_for_selected_packages <- function(view_df){
 #' @param version String. Version of the package to download.
 #' @param url String. Link to archived package tar file.
 #' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
+#' @param exdir String. Path to directory to save examples. Defaults to NULL, so a temporary directory gets used.
 #' @importFrom purrr keep map
 #' @return Side-effect. No returned object, writes a Rd files to disk.
 #' @details
@@ -203,7 +204,7 @@ get_sources_for_selected_packages <- function(view_df){
 #' of a package, `version` giving its version, `url` the download url
 #' `last_modified` the date on which the package was last modified on CRAN
 #' and `size`, the size of the package
-get_example <- function(name, version, url, clean = TRUE){
+get_example <- function(name, version, url, clean = TRUE, exdir = NULL){
 
   path_tempfile <- tempfile(fileext = ".tar.gz")
 
@@ -214,7 +215,14 @@ get_example <- function(name, version, url, clean = TRUE){
                   destfile = path_tempfile,
                   quiet = TRUE)
 
-  exdir_path <- paste0(path_tempdir, "wontrun_download/", name, "/", version)
+  if(is.null(exdir)){
+    exdir_path <- paste0(path_tempdir, "wontrun_download/", name, "/", version)
+  } else {
+    if (!dir.exists(exdir)){
+      dir.create(exdir)
+    }
+    exdir_path <- paste0(exdir, "/wontrun_download/", name, "/", version)
+  }
 
   untar(path_tempfile, exdir = exdir_path, extras = "--strip-components=1")
 
@@ -222,7 +230,7 @@ get_example <- function(name, version, url, clean = TRUE){
 
     files_to_delete <- list.files(exdir_path,
                                   full.names = TRUE) %>%
-      setdiff(paste0(path_tempdir, "wontrun_download/", name, "/", version, "/man"))
+      setdiff(paste0(path_tempdir, "/wontrun_download/", name, "/", version, "/man"))
 
     unlink(files_to_delete,
            recursive = TRUE)
@@ -247,8 +255,8 @@ get_example <- function(name, version, url, clean = TRUE){
 
 #' Downloads Rd from an archived source package
 #' @param sources_df Data frame. A data frame as returned by `get_sources_for_selected_packages()`
-#' @param clean Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.
 #' @param test Boolean, defaults to FALSE. TRUE is only useful for running unit tests.
+#' @param ... Further arguments passed down to get_example().
 #' @return Side-effect. No returned object, writes a Rd files to disk.
 #' @importFrom dplyr mutate
 #' @importFrom purrr pmap_chr
@@ -264,9 +272,9 @@ get_example <- function(name, version, url, clean = TRUE){
 #' # It is now possible to download the man/ folders of these packages with the following lines
 #' get_examples(ctv_econ_sources)
 #' }
-get_examples <- function(sources_df, clean = TRUE, test = FALSE){
+get_examples <- function(sources_df, test = FALSE, ...){
   sources_df <- sources_df |>
-    mutate(exdir_path = pmap_chr(list(name, version, url), get_example, clean))
+    mutate(exdir_path = pmap_chr(list(name, version, url), get_example, ...))
 
   if(test){
     exdir_path <- sources_df |>
@@ -343,7 +351,7 @@ with_pload <- function(package, code){
 #' @importFrom callr r_vanilla
 #' @importFrom rlang try_fetch
 #' @importFrom future plan
-#' @importFrom furrr 
+#' @importFrom furrr future_map2
 #' @export
 run_examples <- function(sources_df_with_path,
                          ncpus,

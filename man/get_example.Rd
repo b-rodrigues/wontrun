@@ -4,7 +4,7 @@
 \alias{get_example}
 \title{Downloads doc files from an archived source package, and generates an R script from it.}
 \usage{
-get_example(name, version, url, clean = TRUE)
+get_example(name, version, url, clean = TRUE, exdir = NULL)
 }
 \arguments{
 \item{name}{String. Name of the packages.}
@@ -14,6 +14,8 @@ get_example(name, version, url, clean = TRUE)
 \item{url}{String. Link to archived package tar file.}
 
 \item{clean}{Boolean, defaults to TRUE. If TRUE, only keeps man/ folder containing the documentaton. If FALSE, keeps entire package.}
+
+\item{exdir}{String. Path to directory to save examples. Defaults to NULL, so a temporary directory gets used.}
 }
 \value{
 Side-effect. No returned object, writes a Rd files to disk.

@@ -53,19 +53,49 @@ sources_ctv_econ <- econ_source %>%
 usethis::use_data(sources_ctv_econ, overwrite = TRUE)
 
 library(tidyverse)
-r0 <- "https://cran.r-project.org/src/base/R-0/"
+library(janitor)
 
-r0_links <-  r0 %>%
-  read_html() %>%
-  html_nodes("table") %>%
-  html_table() %>%
-  pluck(1) %>%
-  clean_names() %>%
-  filter(name != "Parent Directory",
-       last_modified != "",
-       size != "-") %>%
-  mutate(last_modified = ymd_hm(last_modified),
-         url = paste0(r0, name)) %>%
-  separate(name, into = c("name", "version"), sep = "-") %>%
-  select(name, version, url, last_modified, size) %>%
-  get_examples(clean = FALSE)
+r0 <- "https://cran.r-project.org/src/base/R-0/"
+r1 <- "https://cran.r-project.org/src/base/R-1/"
+r2 <- "https://cran.r-project.org/src/base/R-2/"
+r3 <- "https://cran.r-project.org/src/base/R-3/"
+r4 <- "https://cran.r-project.org/src/base/R-4/"
+
+exdir_path <- "/home/cbrunos/six_to/r_docs"
+
+get_archived_rs <- function(r0){
+  read_html(r0) %>%
+    html_nodes("table") %>%
+    html_table() %>%
+    pluck(1) %>%
+    clean_names() %>%
+    filter(name != "Parent Directory",
+           last_modified != "",
+           size != "-") %>%
+    mutate(last_modified = ymd_hm(last_modified),
+           url = paste0(r0, name)) %>%
+    separate(name, into = c("name", "version"), sep = "-") %>%
+    select(name, version, url, last_modified, size) %>%
+    get_examples(clean = FALSE, exdir = exdir_path)
+}
+
+get_archived_rs(r0)
+get_archived_rs(r1)
+get_archived_rs(r2)
+get_archived_rs(r3)
+get_archived_rs(r4)
+
+# delete unneeded files
+all_files <- list.files(paste0(exdir_path, "/wontrun_download/R/"),
+             full.names = TRUE,
+             all.files = TRUE,
+             recursive = TRUE)
+
+files_to_delete <- all_files %>%
+  discard(~grepl("src/library/.*/man/",.))
+
+unlink(files_to_delete,
+       recursive = TRUE)
+
+# delete empty directories that remain
+system("find /home/cbrunos/six_to/r_docs/wontrun_download/R/ -empty -type d -delete")
