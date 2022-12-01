@@ -46,7 +46,7 @@ cl <- parallel::detectCores()-2
 We can now run the examples contained in the archived packages with the `wontrun()` function:
 
 ```{r, eval = F}
-dplyr_runs <- wontrun(dplyr_sources, ncpus = cl)
+dplyr_runs <- wontrun(head(dplyr_sources), ncpus = cl, wontrun_lib = "~/six_to/wontrun_lib")
 ```
 
 ```{r, echo = f}

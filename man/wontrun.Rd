@@ -21,6 +21,10 @@ wontrun(
 \item{years}{Integer. Year or atomic vector of years to select packages to run examples.}
 
 \item{earliest}{Boolean. Select oldest package from year.}
+
+\item{setup}{Boolean. Should dependencies get installed to run examples? Defaults to FALSE.}
+
+\item{wontrun_lib}{Path to wontrun library.}
 }
 \value{
 Side-effect. No returned object, writes a Rd files to disk.

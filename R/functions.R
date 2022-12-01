@@ -286,7 +286,21 @@ get_examples <- function(sources_df, test = FALSE, ...){
   }
 }
 
-
+#' Set up a separate library with the required packages to run examples
+#' @param script_path Path to a script. This script will get analyzed for dependencies
+#' @param wontrun_lib Path to the wontrun library. This library will be used to run the examples.
+#' @param ... Further arguments passed down to install.packages()
+#' @details
+#' This function will look for, and download, the required packages to run the examples from the
+#' archived packages. It is best to not use the default user library to download and install
+#' these packages in, so it is advised to specify a separate library using the `wontrun_lib` argument.
+#' It is also required to install the wontrun package into this library. For this, use the following
+#' command:
+#' withr::with_libpaths(
+#'   wontrun_lib,
+#'   devtools::install_github("b-rodrigues/wontrun", ref = "master",
+#'   upgrade = "never")
+#'   )
 #' @importFrom purrr keep
 #' @importFrom stringr str_remove_all str_trim
 #' @importFrom renv dependencies
@@ -336,8 +350,10 @@ setup_wontrun <- function(script_path, wontrun_lib, ...){
 }
 
 
+#' Runs code with an attached package. Detaches it afterwards. For internal use only.
+#' @param package String. Package name. If the package is not available, it gets installed.
+#' @param code Expression. Code to run in with this package attached.
 #' @importFrom pacman p_load
-#' @export
 with_pload <- function(package, code){
 
   pacman::p_load(char = package)
@@ -348,14 +364,31 @@ with_pload <- function(package, code){
 
 }
 
+#' Runs the examples in a separate session (one for each script).
+#' @param sources_df_with_path A data frame columns `name` (of the package), `version` (of the package), (name of) `script` and `scripts_paths` (paths to script, optional). Each row represents a script.
+#' @param base Boolean. Are you running packages from a base install of R (`base`, `compiler`, `datasets`, `stats`, etc). Defaults to FALSE.
+#' @param ncpus Number of cpus to use for running examples in parallel.
+#' @param setup Should this function install missing dependencies, using `setup_wontrun`?
+#' @param script_path_create Boolean. Should paths to scripts be generated? Use this if the input data frame does not have the `scripts_paths` column.
+#' @param wontrun_lib Path to wontrun library set up for the project.
+#' @details
+#' This function is called by the `wontrun()` function, so usually, users do not need to use it.
+#' However, should you already have a data frame with paths to individual scripts, then you should use this function to run examples
+#' and not `wontrun()`. See the vignettes for more details.
 #' @importFrom callr r_vanilla
 #' @importFrom rlang try_fetch
-#' @importFrom future plan
+#' @importFrom future plan multisession
 #' @importFrom furrr future_map2
+#' @importFrom purrr map
+#' @importFrom dplyr group_by mutate ungroup
+#' @importFrom tidyr unnest
+#' @importFrom withr with_package
 #' @export
 run_examples <- function(sources_df_with_path,
+                         base = FALSE,
                          ncpus,
                          setup,
+                         script_path_create = TRUE,
                          wontrun_lib,
                          ...){
 
@@ -368,7 +401,7 @@ run_examples <- function(sources_df_with_path,
 
     print(cat("Loading ", name, "\n", "and running ", script))
     callr::r_vanilla(function(x, y){ #x is the package, y is the source file to run
-      wontrun::with_pload(x,
+      wontrun::with_pload(x, # Needs to be explicitely called using :: for parallelization
                  rlang::try_fetch(
                           source(y),
                           condition = function(cnd) cnd))
@@ -379,31 +412,64 @@ run_examples <- function(sources_df_with_path,
   }
 
 
+  # no need to load packages, nor detach them
+  run_base_script <- function(name, script, libpath = wontrun_lib){
+
+    # The functions in these packages have moved to stats now. 
+    # {splines} and {lqs} though, I cannot find where their function live now. Seems like
+    # all the functions have been deprecated, or renamed?
+    if(name %in% c("ts", "stepfun", "mva", "modreg", "ctest", "eda", "nls", "splines", "lqs")){
+      name <- "stats"
+    } 
+
+    print(cat("Loading ", name, "\n", "and running ", script))
+    callr::r_vanilla(function(x, y){
+      withr::with_package(x,
+                          rlang::try_fetch(
+                                   source(y),
+                                   condition = function(cnd) cnd))
+    },
+    args = list(x = name, y = script),
+    libpath = libpath
+    )
+  }
+
   future::plan(future::multisession, workers = ncpus)
 
- # sources_df_with_path <- sources_df_with_path %>%
-  sources_df_with_path <- sources_df_with_path %>%
-    mutate(exdir_script_path = paste0(exdir_path, "/scripts")) %>%
-    dplyr::group_by(name) %>%
-    mutate(scripts_paths = list(
-             list.files(exdir_script_path, full.names = TRUE))
-           ) %>%
-    dplyr::ungroup() %>%
-    unnest(cols = c(scripts_paths))
+  if(script_path_create){
+    # sources_df_with_path <- sources_df_with_path %>%
+    sources_df_with_path <- sources_df_with_path %>%
+      mutate(exdir_script_path = paste0(exdir_path, "/scripts")) %>%
+      group_by(name) %>%
+      mutate(scripts_paths = list(
+               list.files(exdir_script_path, full.names = TRUE))
+             ) %>%
+      ungroup() %>%
+      unnest(cols = c(scripts_paths))
+  }
 
   if(setup){
     message("Setting up wontrun_lib")
     sources_df_with_path$scripts_paths %>%
-      purrr::map(~setup_wontrun(., wontrun_lib = wontrun_lib))
+      map(~setup_wontrun(., wontrun_lib = wontrun_lib))
     message("Done setting up wontrun_lib")
   }
 
+  if(base){
+    sources_df_with_path %>%
+      mutate(runs =  future_map2(
+                     name,
+                     scripts_paths,
+                     run_base_script))
+  } else {
+    sources_df_with_path %>%
+      mutate(runs = future_map2(
+               name,
+               scripts_paths,
+               run_script))
 
-  sources_df_with_path %>%
-    mutate(runs = furrr::future_map2(
-                           name,
-                           scripts_paths,
-                           run_script))
+  }
+
 
 
 }
@@ -413,6 +479,8 @@ run_examples <- function(sources_df_with_path,
 #' @param ncpus Integer. Number of cpus to run examples in parallel.
 #' @param years Integer. Year or atomic vector of years to select packages to run examples.
 #' @param earliest Boolean. Select oldest package from year.
+#' @param setup Boolean. Should dependencies get installed to run examples? Defaults to FALSE.
+#' @param wontrun_lib Path to wontrun library.
 #' @return Side-effect. No returned object, writes a Rd files to disk.
 #' @importFrom dplyr filter group_by ungroup mutate
 #' @importFrom lubridate year
@@ -475,7 +543,7 @@ wontrun <- function(packages_df,
 #' }
 decode_wontrun <- function(wontrun_df){
   wontrun_df %>%
-    select(name, version, last_modified, scripts_paths, runs) %>%
+    select(any_of(c("name", "version", "last_modified", "scripts_paths", "runs"))) %>%
     mutate(scripts = stringr::str_remove_all(scripts_paths, ".*/scripts/"),
            classes = map(runs, class),
            classes = map_chr(classes,
