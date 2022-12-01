@@ -99,3 +99,69 @@ unlink(files_to_delete,
 
 # delete empty directories that remain
 system("find /home/cbrunos/six_to/r_docs/wontrun_download/R/ -empty -type d -delete")
+file.copy(from = current_files, to = new_files, 
+          overwrite = recursive, recursive = FALSE, copy.mode = TRUE)
+
+file.copy(
+  "/home/cbrunos/six_to/r_docs/wontrun_download/R/0.49.tgz/src/library/",
+  "/home/cbrunos/six_to/r_docs/wontrun_download/R/0.49.tgz/",
+  recursive = TRUE , copy.mode = TRUE
+            )
+
+folder_paths <- list.files(paste0(exdir_path, "/wontrun_download/R/"),
+           full.names = TRUE)
+
+library(magrittr)
+
+file_copy <- function(from, exdir, ...){
+  file.copy(from = paste0(from, exdir), ...)
+  from
+}
+
+folders <- list.files(paste0(exdir_path, "/wontrun_download/R"))
+
+move_up_twice <- function(path_to_rversion){
+
+  root_path <- paste0("/home/cbrunos/six_to/r_docs/wontrun_download/R/",
+                      path_to_rversion,
+                      "/src/library")
+
+  folder_paths <- list.files(root_path,
+                             full.names = TRUE)
+
+  folders_to_create <- str_remove_all(folder_paths, "src/library/") %>%
+    paste0("/man")
+
+  map(folders_to_create, dir.create, recursive = TRUE)
+
+  files_to_move <- list.files(root_path,
+                              full.names = TRUE,
+                              recursive = TRUE)
+
+  files_to_move %>%
+    map(~file.rename(., str_remove_all(., "src/library/")))
+
+
+}
+
+map(folders, move_up_twice)
+
+system("find /home/cbrunos/six_to/r_docs/wontrun_download/R/ -empty -type d -delete")
+
+folders <- list.files(paste0(exdir_path, "/wontrun_download/R"),
+                      recursive = TRUE,
+                      full.names = TRUE) %>%
+  keep(~grepl("src", .))
+
+unlink(folders,
+       recursive = TRUE)
+
+system("find /home/cbrunos/six_to/r_docs/wontrun_download/R/ -empty -type d -delete")
+
+files_to_convert <- list.files(paste0(exdir_path, "/wontrun_download/R"),
+                      recursive = TRUE,
+                      full.names = TRUE)
+
+p_gen <- purrr::possibly(generate_script_from_help, otherwise = NULL)
+
+walk(files_to_convert, p_gen)
