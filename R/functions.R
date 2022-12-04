@@ -364,6 +364,15 @@ with_pload <- function(package, code){
 
 }
 
+#' @export
+source2 <- function(..., install_deps = FALSE){
+  if(install_deps){
+    deps <- renv::dependencies(...)
+    pacman::p_load(char = deps$Package)
+  }
+  source(...)
+}
+
 #' Runs the examples in a separate session (one for each script).
 #' @param sources_df_with_path A data frame columns `name` (of the package), `version` (of the package), (name of) `script` and `scripts_paths` (paths to script, optional). Each row represents a script.
 #' @param base Boolean. Are you running packages from a base install of R (`base`, `compiler`, `datasets`, `stats`, etc). Defaults to FALSE.
@@ -411,16 +420,23 @@ run_examples <- function(sources_df_with_path,
     )
   }
 
+  replace_for_stats <-  c("ts", "stepfun", "mva", "modreg", "ctest", "eda", "nls", "lqs")
+
+  replace_for_stats4 <- "mle"
 
   # no need to load packages, nor detach them
   run_base_script <- function(name, script, libpath = wontrun_lib){
 
     # The functions in these packages have moved to stats now. 
-    # {splines} and {lqs} though, I cannot find where their function live now. Seems like
+    # {lqs} though, I cannot find where its functions live now. Seems like
     # all the functions have been deprecated, or renamed?
-    if(name %in% c("ts", "stepfun", "mva", "modreg", "ctest", "eda", "nls", "splines", "lqs")){
+    if(name %in% replace_for_stats){
       name <- "stats"
-    } 
+    }
+
+    if(name %in% replace_for_stats4){
+      name <- "stats4"
+    }
 
     print(cat("Loading ", name, "\n", "and running ", script))
     callr::r_vanilla(function(x, y){
@@ -460,7 +476,10 @@ run_examples <- function(sources_df_with_path,
       mutate(runs =  future_map2(
                      name,
                      scripts_paths,
-                     run_base_script))
+               run_base_script),
+             fix = case_when(ifelse(name %in% replace_for_stats) ~ "Replaced packages for {stats}",
+                             ifelse(name %in% replace_for_stats4) ~ "Replaced packages for {stats4}",
+                             TRUE ~ NA_character_))
   } else {
     sources_df_with_path %>%
       mutate(runs = future_map2(
