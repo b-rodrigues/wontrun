@@ -11,18 +11,25 @@ LazyData: true
 VignetteBuilder: knitr
 BugReports: https://github.com/b-rodrigues/wontrun/issues
 Imports:
+    callr,
     ctv,
     dplyr,
+    furrr,
+    future,
     janitor,
     lubridate,
     magrittr,
+    pacman,
     pkgsearch,
     purrr,
+    renv,
+    rlang,
     rvest,
     stringr,
     tibble,
     tidyr,
-    tools
+    tools,
+    withr
 Suggests:
     knitr,
     rmarkdown,
