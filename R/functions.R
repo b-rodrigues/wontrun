@@ -17,8 +17,8 @@ generate_script_from_help <- function(path_to_rd, rm_dont_run = TRUE){
                                       "^(.*?man\\/)")
 
   # Detect if resulting script file has a \dontrun tag
-  # if yes, remove just ignore it. This is a bit overkill, because
-  # in cases where there's this tag alongside valid examples, they 
+  # if yes, just ignore it. This is a bit overkill, because
+  # in cases where there's this tag alongside valid examples, they
   # all get ignored. I still expect this to happen rarely though.
   if({
     readLines(path_to_rd) %>%
@@ -477,8 +477,8 @@ run_examples <- function(sources_df_with_path,
                      name,
                      scripts_paths,
                run_base_script),
-             fix = case_when(ifelse(name %in% replace_for_stats) ~ "Replaced packages for {stats}",
-                             ifelse(name %in% replace_for_stats4) ~ "Replaced packages for {stats4}",
+             fix = case_when(name %in% replace_for_stats ~ "Replaced packages for {stats}",
+                             name %in% replace_for_stats4 ~ "Replaced packages for {stats4}",
                              TRUE ~ NA_character_))
   } else {
     sources_df_with_path %>%
