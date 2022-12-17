@@ -354,6 +354,7 @@ setup_wontrun <- function(script_path, wontrun_lib, ...){
 #' @param package String. Package name. If the package is not available, it gets installed.
 #' @param code Expression. Code to run in with this package attached.
 #' @importFrom pacman p_load
+#' @export
 with_pload <- function(package, code){
 
   pacman::p_load(char = package)
