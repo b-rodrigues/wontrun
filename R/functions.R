@@ -216,7 +216,7 @@ get_example <- function(name, version, url, clean = TRUE, exdir = NULL){
                   quiet = TRUE)
 
   if(is.null(exdir)){
-    exdir_path <- paste0(path_tempdir, "wontrun_download/", name, "/", version)
+    exdir_path <- paste0(path_tempdir, "/wontrun_download/", name, "/", version)
   } else {
     if (!dir.exists(exdir)){
       dir.create(exdir)
@@ -529,8 +529,8 @@ wontrun <- function(packages_df,
     filter(year(last_modified) %in% !!years)
 
   if(earliest){
-    packages_df_sources <- packages_df_sources %>%
-      group_by(name,  year(last_modified)) %>%
+  packages_df_sources <- packages_df_sources %>%
+    group_by(name,  year(last_modified)) %>%
       filter(last_modified == min(last_modified)) %>%
       ungroup() %>%
       select(-contains("year"))
