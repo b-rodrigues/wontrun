@@ -457,7 +457,7 @@ run_examples <- function(sources_df_with_path,
     # sources_df_with_path <- sources_df_with_path %>%
     sources_df_with_path <- sources_df_with_path %>%
       mutate(exdir_script_path = paste0(exdir_path, "/scripts")) %>%
-      group_by(name) %>%
+      group_by(version) %>%
       mutate(scripts_paths = list(
                list.files(exdir_script_path, full.names = TRUE))
              ) %>%
